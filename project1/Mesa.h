@@ -1,10 +1,12 @@
 #ifndef MESA_H
 #define MESA_H
 
+#include "History.h"
 #include "globals.h"
 
 class Gark;
 class Player;
+class History;
 
 class Mesa {
 public:
@@ -27,12 +29,15 @@ public:
   bool attackGarkAt(int r, int c, int dir);
   bool moveGarks();
 
+  History &history();
+
 private:
   int m_rows;
   int m_cols;
   Player *m_player;
   Gark *m_garks[MAXGARKS];
   int m_nGarks;
+  History m_history;
 };
 
 #endif // MESA_H

@@ -1,6 +1,5 @@
 #include "Gark.h"
 #include "Mesa.h"
-#include "globals.h"
 #include <iostream>
 
 using namespace std;

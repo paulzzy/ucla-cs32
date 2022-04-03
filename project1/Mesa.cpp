@@ -1,12 +1,14 @@
 #include "Mesa.h"
 #include "Gark.h"
+#include "History.h"
 #include "Player.h"
 #include <iostream>
 
 using namespace std;
 
 Mesa::Mesa(int nRows, int nCols)
-    : m_rows(nRows), m_cols(nCols), m_player(nullptr), m_nGarks(0) {
+    : m_rows(nRows), m_cols(nCols), m_player(nullptr), m_nGarks(0),
+      m_history(nRows, nCols) {
   if (nRows <= 0 || nCols <= 0 || nRows > MAXROWS || nCols > MAXCOLS) {
     cout << "***** Mesa created with invalid size " << nRows << " by " << nCols
          << "!" << endl;
@@ -167,8 +169,12 @@ bool Mesa::attackGarkAt(int r, int c, int dir) {
     m_garks[k] = m_garks[m_nGarks - 1];
     m_nGarks--;
     return true;
+  } else if (k < m_nGarks) { // gark lives
+    history().record(r, c);
+    return false;
+  } else { // No gark there
+    return false;
   }
-  return false;
 }
 
 bool Mesa::moveGarks() {
@@ -182,3 +188,5 @@ bool Mesa::moveGarks() {
   // return true if the player is still alive, false otherwise
   return !m_player->isDead();
 }
+
+History &Mesa::history() { return m_history; }

@@ -1,6 +1,8 @@
 #ifndef HISTORY_H
 #define HISTORY_H
 
+#include "globals.h"
+
 class Mesa;
 
 class History {
@@ -10,6 +12,9 @@ public:
   void display() const;
 
 private:
+  int m_rows;
+  int m_cols;
+  char m_history[MAXROWS][MAXCOLS];
 };
 
 #endif // HISTORY_H
