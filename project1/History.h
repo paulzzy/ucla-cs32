@@ -14,7 +14,7 @@ public:
 private:
   int m_rows;
   int m_cols;
-  char m_history[MAXROWS][MAXCOLS];
+  char m_grid[MAXROWS][MAXCOLS];
 };
 
 #endif // HISTORY_H
