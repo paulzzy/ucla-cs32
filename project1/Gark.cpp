@@ -30,8 +30,9 @@ void Gark::move() {
 bool Gark::getAttacked(int dir) // return true if dies
 {
   m_health--;
-  if (m_health == 0)
+  if (m_health == 0) {
     return true;
+  }
   if (!m_mesa->determineNewPosition(m_row, m_col, dir)) {
     m_health = 0;
     return true;

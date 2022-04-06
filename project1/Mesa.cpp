@@ -17,8 +17,9 @@ Mesa::Mesa(int nRows, int nCols)
 }
 
 Mesa::~Mesa() {
-  for (int k = 0; k < m_nGarks; k++)
+  for (int k = 0; k < m_nGarks; k++) {
     delete m_garks[k];
+  }
   delete m_player;
 }
 
@@ -34,8 +35,9 @@ int Mesa::numGarksAt(int r, int c) const {
   int count = 0;
   for (int k = 0; k < m_nGarks; k++) {
     const Gark *gp = m_garks[k];
-    if (gp->row() == r && gp->col() == c)
+    if (gp->row() == r && gp->col() == c) {
       count++;
+    }
   }
   return count;
 }
@@ -43,28 +45,32 @@ int Mesa::numGarksAt(int r, int c) const {
 bool Mesa::determineNewPosition(int &r, int &c, int dir) const {
   switch (dir) {
   case UP:
-    if (r <= 1)
+    if (r <= 1) {
       return false;
-    else
+    } else {
       r--;
+    }
     break;
   case DOWN:
-    if (r >= rows())
+    if (r >= rows()) {
       return false;
-    else
+    } else {
       r++;
+    }
     break;
   case LEFT:
-    if (c <= 1)
+    if (c <= 1) {
       return false;
-    else
+    } else {
       c--;
+    }
     break;
   case RIGHT:
-    if (c >= cols())
+    if (c >= cols()) {
       return false;
-    else
+    } else {
       c++;
+    }
     break;
   default:
     return false;
@@ -76,12 +82,15 @@ void Mesa::display() const {
   // Position (row,col) in mesa coordinate system is represented in
   // the array element grid[row-1][col-1]
   char grid[MAXROWS][MAXCOLS];
-  int r, c;
+  int r;
+  int c;
 
   // Fill the grid with dots
-  for (r = 0; r < rows(); r++)
-    for (c = 0; c < cols(); c++)
+  for (r = 0; r < rows(); r++) {
+    for (c = 0; c < cols(); c++) {
       grid[r][c] = '.';
+    }
+  }
 
   // Indicate each gark's position
   for (int k = 0; k < m_nGarks; k++) {
@@ -107,17 +116,19 @@ void Mesa::display() const {
     // Set char to '@', unless there's also a gark there,
     // in which case set it to '*'.
     char &gridChar = grid[m_player->row() - 1][m_player->col() - 1];
-    if (gridChar == '.')
+    if (gridChar == '.') {
       gridChar = '@';
-    else
+    } else {
       gridChar = '*';
+    }
   }
 
   // Draw the grid
   clearScreen();
   for (r = 0; r < rows(); r++) {
-    for (c = 0; c < cols(); c++)
+    for (c = 0; c < cols(); c++) {
       cout << grid[r][c];
+    }
     cout << endl;
   }
   cout << endl;
@@ -125,20 +136,23 @@ void Mesa::display() const {
   // Write message, gark, and player info
   cout << endl;
   cout << "There are " << garkCount() << " garks remaining." << endl;
-  if (m_player == nullptr)
+  if (m_player == nullptr) {
     cout << "There is no player." << endl;
-  else {
-    if (m_player->age() > 0)
+  } else {
+    if (m_player->age() > 0) {
       cout << "The player has lasted " << m_player->age() << " steps." << endl;
-    if (m_player->isDead())
+    }
+    if (m_player->isDead()) {
       cout << "The player is dead." << endl;
+    }
   }
 }
 
 bool Mesa::addGark(int r, int c) {
   // Dynamically allocate a new Gark and add it to the mesa
-  if (m_nGarks == MAXGARKS)
+  if (m_nGarks == MAXGARKS) {
     return false;
+  }
   m_garks[m_nGarks] = new Gark(this, r, c);
   m_nGarks++;
   return true;
@@ -146,8 +160,9 @@ bool Mesa::addGark(int r, int c) {
 
 bool Mesa::addPlayer(int r, int c) {
   // Don't add a player if one already exists
-  if (m_player != nullptr)
+  if (m_player != nullptr) {
     return false;
+  }
 
   // Dynamically allocate a new Player and add it to the mesa
   m_player = new Player(this, r, c);
@@ -160,29 +175,34 @@ bool Mesa::attackGarkAt(int r, int c, int dir) {
   // gark).
   int k = 0;
   for (; k < m_nGarks; k++) {
-    if (m_garks[k]->row() == r && m_garks[k]->col() == c)
+    if (m_garks[k]->row() == r && m_garks[k]->col() == c) {
       break;
+    }
   }
+
   if (k < m_nGarks && m_garks[k]->getAttacked(dir)) // gark dies
   {
     delete m_garks[k];
     m_garks[k] = m_garks[m_nGarks - 1];
     m_nGarks--;
     return true;
-  } else if (k < m_nGarks) { // gark lives
-    history().record(r, c);
-    return false;
-  } else { // No gark there
+  }
+
+  if (k < m_nGarks) { // gark lives
+    m_history.record(r, c);
     return false;
   }
+
+  return false; // No gark there
 }
 
 bool Mesa::moveGarks() {
   for (int k = 0; k < m_nGarks; k++) {
     Gark *gp = m_garks[k];
     gp->move();
-    if (gp->row() == m_player->row() && gp->col() == m_player->col())
+    if (gp->row() == m_player->row() && gp->col() == m_player->col()) {
       m_player->setDead();
+    }
   }
 
   // return true if the player is still alive, false otherwise
