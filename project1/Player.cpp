@@ -30,9 +30,9 @@ void Player::moveOrAttack(int dir) {
   int r = m_row;
   int c = m_col;
   if (m_mesa->determineNewPosition(r, c, dir)) {
-    if (m_mesa->numGarksAt(r, c) > 0)
+    if (m_mesa->numGarksAt(r, c) > 0) {
       m_mesa->attackGarkAt(r, c, dir);
-    else {
+    } else {
       m_row = r;
       m_col = c;
     }
