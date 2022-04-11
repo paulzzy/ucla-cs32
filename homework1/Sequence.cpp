@@ -135,9 +135,9 @@ void Sequence::dump() const {
   std::string stringified = "[";
 
   for (int i = 0; i < m_size - 1; i++) {
-    stringified.append(m_sequence[i] + ", ");
+    stringified.append(std::to_string(m_sequence[i]) + ", ");
   }
-  stringified.append(m_sequence[m_size] + "]");
+  stringified.append(std::to_string(m_sequence[m_size]) + "]");
 
   std::cerr << stringified << std::endl;
 }
