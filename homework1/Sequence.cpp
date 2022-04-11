@@ -108,33 +108,26 @@ int Sequence::find(const ItemType &value) const {
 }
 
 void Sequence::swap(Sequence &other) {
-  Sequence temp = Sequence();
-
-  // Copy `this` Sequence into the `temp` Sequence
-  for (int i = 0; i < m_size; i++) {
-    temp.insert(temp.size(), m_sequence[i]);
-  }
-
-  // Override `this` Sequence with the `other` Sequence
-  for (int i = 0; i < other.size(); i++) {
-    ItemType current_value;
-    other.get(i, current_value);
-    m_sequence[i] = current_value;
-  }
-  m_size = other.size();
-
-  // Override `other` Sequence
-  for (int j = 0; j < m_size; j++) {
-    ItemType current_value;
-    temp.get(j, current_value);
-    other.set(j, current_value);
-  }
-
-  // Trim `other` Sequence to have the same `size()` as `temp`
-  if (other.size() > temp.size()) {
-    for (int i = temp.size(); i < other.size(); i++) {
-      other.erase(i);
+  if (m_size < other.size()) {
+    for (int i = 0; i < m_size; i++) {
+      ItemType temp = m_sequence[i];
+      other.get(i, m_sequence[i]);
+      other.set(i, temp);
     }
+
+    for (int j = m_size; j < other.size(); j++) {
+      other.erase(j);
+    }
+  } else {
+    int other_size = other.size();
+
+    for (int i = 0; i < other.size(); i++) {
+      ItemType temp = m_sequence[i];
+      other.get(i, m_sequence[i]);
+      other.set(i, temp);
+    }
+
+    m_size = other_size;
   }
 }
 
