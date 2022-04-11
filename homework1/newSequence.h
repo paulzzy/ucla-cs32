@@ -1,5 +1,5 @@
-#ifndef SEQUENCE_H
-#define SEQUENCE_H
+#ifndef NEW_SEQUENCE_H
+#define NEW_SEQUENCE_H
 
 #include <string>
 
@@ -82,4 +82,4 @@ private:
   ItemType *m_sequence;
 };
 
-#endif // SEQUENCE_H
+#endif // NEW_SEQUENCE_H
