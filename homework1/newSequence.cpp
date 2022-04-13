@@ -96,11 +96,14 @@ bool Sequence::erase(int pos) {
 
 int Sequence::remove(const ItemType &value) {
   int counter = 0;
+
   for (int pos = 0; pos < m_size; pos++) {
     const ItemType current_value = m_sequence[pos];
     if (value == current_value) {
       erase(pos);
       counter++;
+      pos--; // Remain at the same `pos` to check the new value, which replaces
+             // the erased one
     }
   }
 
