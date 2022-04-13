@@ -1,6 +1,6 @@
 #include "newSequence.h"
 #include <iostream>
-#include <string>
+#include <sstream>
 
 Sequence::Sequence()
     : m_size(0), m_max_size(DEFAULT_MAX_ITEMS),
@@ -150,16 +150,17 @@ void Sequence::swap(Sequence &other) {
 }
 
 void Sequence::dump() const {
-  std::string stringified = "[";
+  std::stringstream stringified;
+  stringified << "[";
 
   if (m_size == 0) {
-    stringified.append("]");
+    stringified << "]";
   } else {
     for (int i = 0; i < m_size - 1; i++) {
-      stringified.append(std::to_string(m_sequence[i]) + ", ");
+      stringified << m_sequence[i] << ", ";
     }
-    stringified.append(std::to_string(m_sequence[m_size - 1]) + "]");
+    stringified << m_sequence[m_size - 1] << "]";
   }
 
-  std::cerr << stringified << std::endl;
+  std::cerr << stringified.str() << std::endl;
 }

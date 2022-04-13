@@ -1,6 +1,6 @@
 #include "Sequence.h"
 #include <iostream>
-#include <string>
+#include <sstream>
 
 Sequence::Sequence() : m_size(0) {}
 
@@ -137,12 +137,17 @@ void Sequence::swap(Sequence &other) {
 }
 
 void Sequence::dump() const {
-  std::string stringified = "[";
+  std::stringstream stringified;
+  stringified << "[";
 
-  for (int i = 0; i < m_size - 1; i++) {
-    stringified.append(std::to_string(m_sequence[i]) + ", ");
+  if (m_size == 0) {
+    stringified << "]";
+  } else {
+    for (int i = 0; i < m_size - 1; i++) {
+      stringified << m_sequence[i] << ", ";
+    }
+    stringified << m_sequence[m_size - 1] << "]";
   }
-  stringified.append(std::to_string(m_sequence[m_size]) + "]");
 
-  std::cerr << stringified << std::endl;
+  std::cerr << stringified.str() << std::endl;
 }
