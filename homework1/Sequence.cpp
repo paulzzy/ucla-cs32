@@ -65,7 +65,7 @@ bool Sequence::erase(int pos) {
     return true;
   }
 
-  for (int i = pos; i < m_size - 2; i++) {
+  for (int i = pos; i < m_size - 1; i++) {
     m_sequence[i] = m_sequence[i + 1];
   }
   m_size--;
