@@ -1,8 +1,6 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
-#include <string>
-
 using ItemType = unsigned long;
 
 const int DEFAULT_MAX_ITEMS = 180;
