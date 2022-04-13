@@ -1,7 +1,7 @@
 #ifndef LEVEL_LIST_H
 #define LEVEL_LIST_H
 
-#include "newSequence.h"
+#include "Sequence.h"
 #include <limits>
 
 const unsigned long NO_LEVEL = std::numeric_limits<unsigned long>::max();

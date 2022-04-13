@@ -1,5 +1,5 @@
 #include "LevelList.h"
-#include "newSequence.h"
+#include "Sequence.h"
 
 LevelList::LevelList() {}
 
