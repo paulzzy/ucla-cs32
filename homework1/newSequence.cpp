@@ -11,7 +11,8 @@ Sequence::Sequence(int max_size)
       m_sequence(max_size > 0 ? new ItemType[max_size] : new ItemType[0]) {}
 
 Sequence::Sequence(const Sequence &that)
-    : m_size(that.size()), m_sequence(new ItemType[that.size()]) {
+    : m_size(that.size()), m_max_size(that.m_max_size),
+      m_sequence(new ItemType[that.size()]) {
   for (int i = 0; i < that.size(); i++) {
     that.get(i, m_sequence[i]);
   }
