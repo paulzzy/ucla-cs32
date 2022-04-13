@@ -1,18 +1,25 @@
 #include "LevelList.h"
-#include "newSequence.h"
+#include "Sequence.h"
 #include <cassert>
 #include <iostream>
 
 int main() {
-  LevelList test;
-  assert(test.add(300));
-  assert(!test.add(29));
-  assert(test.add(40));
-  assert(test.add(100));
-  assert(test.add(200));
-  assert(test.remove(40));
-  assert(!test.remove(99));
-  assert(test.minimum() == 100);
+  LevelList l;
+  assert(!l.add(29));
+  assert(!l.add(401));
 
-  std::cerr << "ya passed wooo" << std::endl;
+  for (int i = 0; i < DEFAULT_MAX_ITEMS; i++) {
+    assert(l.add(400 - i));
+  }
+
+  assert(l.minimum() == 400 - DEFAULT_MAX_ITEMS + 1);
+  assert(l.maximum() == 400);
+  assert(l.size() == DEFAULT_MAX_ITEMS);
+
+  for (int i = 0; i < DEFAULT_MAX_ITEMS; i++) {
+    assert(l.remove(400 - i));
+  }
+  assert(l.size() == 0);
+
+  std::cerr << "ya passed LevelList wooo" << std::endl;
 }

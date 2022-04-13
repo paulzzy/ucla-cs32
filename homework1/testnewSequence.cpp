@@ -1,26 +1,75 @@
 #include "newSequence.h"
 #include <cassert>
 #include <iostream>
-
-Sequence a(1000); // a can hold at most 1000 items
-Sequence b(5);    // b can hold at most 5 items
-Sequence c;       // c can hold at most DEFAULT_MAX_ITEMS items
-ItemType v = 10;
+using namespace std;
 
 int main() {
-  // No failures inserting 5 items into b
-  for (int k = 0; k < 5; k++) {
-    assert(b.insert(v) != -1);
-    b.dump();
+  Sequence s;
+  // empty
+  assert(s.empty());
+
+  // insert with one parameter
+  for (int i = 0; i < DEFAULT_MAX_ITEMS; i++) {
+    assert(s.insert(DEFAULT_MAX_ITEMS - 1 - i) == 0);
+  }
+  assert(s.insert(0) == -1);
+
+  // find
+  for (int i = 0; i < DEFAULT_MAX_ITEMS; i++) {
+    assert(s.find(i) == i);
   }
 
-  // Failure if we try to insert a sixth item into b
-  assert(b.insert(v) == -1);
+  // remove
+  for (int i = 0; i < DEFAULT_MAX_ITEMS; i++) {
+    assert(s.remove(i) == 1);
+  }
+  assert(s.empty());
 
-  // When two Sequences' contents are swapped, their capacities are
-  // swapped as well:
-  a.swap(b);
-  assert(a.insert(v) == -1 && b.insert(v) != -1);
+  // insert with two parameters
+  for (int i = 0; i < DEFAULT_MAX_ITEMS - 1; i++) {
+    assert(s.insert(i, 100) == i);
+  }
+  assert(s.insert(0, 100) == 0);
+  assert(s.insert(0, 100) == -1);
 
-  std::cerr << "ya passed" << std::endl;
+  // Invalid insert (both functions)
+  assert(s.insert(101) == -1);
+  assert(s.insert(0, 101) == -1);
+  assert(s.erase(0));
+  assert(s.insert(-1, 101) == -1);
+  assert(s.size() == DEFAULT_MAX_ITEMS - 1);
+
+  // swap
+  Sequence s_2;
+  assert(s_2.insert(1) == 0);
+  s.swap(s_2);
+  assert(s.size() == 1);
+  assert(s_2.insert(0, 101) == 0);
+  assert(s_2.remove(100) == 179);
+
+  Sequence s_3(3);
+  assert(s_3.insert(1) == 0);
+  assert(s_3.insert(3) == 1);
+  assert(s_3.insert(2) == 1);
+  s_2.swap(s_3);
+
+  // Copy ctor
+  Sequence s_4(s_2);
+
+  // Assignment operator
+  Sequence s_5 = s_4;
+
+  std::cerr << "s ([1]): ";
+  s.dump();
+  std::cerr << "s_2 ([1, 2, 3]): ";
+  s_2.dump();
+  std::cerr << "s_3 ([101]): ";
+  s_3.dump();
+  std::cerr << "s_4 ([1, 2, 3]): ";
+  s_2.dump();
+  std::cerr << "s_5 ([1, 2, 3]): ";
+  s_2.dump();
+  std::cerr << std::endl;
+
+  std::cerr << "heck yeah u passed newSequence" << std::endl;
 }
