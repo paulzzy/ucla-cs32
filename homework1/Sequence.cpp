@@ -9,7 +9,7 @@ bool Sequence::empty() const { return m_size == 0; }
 int Sequence::size() const { return m_size; }
 
 int Sequence::insert(int pos, const ItemType &value) {
-  if (pos < 0 || pos > m_size || m_size >= DEFAULT_MAX_ITEMS) {
+  if (!(pos >= 0 && pos <= m_size && m_size < DEFAULT_MAX_ITEMS)) {
     return -1;
   }
 
@@ -26,7 +26,7 @@ int Sequence::insert(int pos, const ItemType &value) {
 }
 
 int Sequence::insert(const ItemType &value) {
-  if (m_size >= DEFAULT_MAX_ITEMS) {
+  if (!(m_size < DEFAULT_MAX_ITEMS)) {
     return -1;
   }
 
@@ -45,7 +45,7 @@ int Sequence::insert(const ItemType &value) {
 }
 
 bool Sequence::erase(int pos) {
-  if (pos < 0 || pos >= m_size) {
+  if (!(pos >= 0 && pos < m_size)) {
     return false;
   }
 
@@ -77,7 +77,7 @@ int Sequence::remove(const ItemType &value) {
 }
 
 bool Sequence::get(int pos, ItemType &value) const {
-  if (pos < 0 || pos >= m_size) {
+  if (!(pos >= 0 && pos < m_size)) {
     return false;
   }
 
@@ -87,7 +87,7 @@ bool Sequence::get(int pos, ItemType &value) const {
 }
 
 bool Sequence::set(int pos, const ItemType &value) {
-  if (pos < 0 || pos >= m_size) {
+  if (!(pos >= 0 && pos < m_size)) {
     return false;
   }
 

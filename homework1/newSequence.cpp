@@ -30,7 +30,7 @@ bool Sequence::empty() const { return m_size == 0; }
 int Sequence::size() const { return m_size; }
 
 int Sequence::insert(int pos, const ItemType &value) {
-  if (!(m_sequence && pos >= 0 && pos <= m_size && m_size < m_max_size)) {
+  if (!(pos >= 0 && pos <= m_size && m_size < m_max_size)) {
     return -1;
   }
 
@@ -47,7 +47,7 @@ int Sequence::insert(int pos, const ItemType &value) {
 }
 
 int Sequence::insert(const ItemType &value) {
-  if (!(m_sequence && m_size < m_max_size)) {
+  if (!(m_size < m_max_size)) {
     return -1;
   }
 
@@ -66,7 +66,7 @@ int Sequence::insert(const ItemType &value) {
 }
 
 bool Sequence::erase(int pos) {
-  if (!(m_sequence && pos >= 0 && pos < m_size)) {
+  if (!(pos >= 0 && pos < m_size)) {
     return false;
   }
 
@@ -85,10 +85,6 @@ bool Sequence::erase(int pos) {
 }
 
 int Sequence::remove(const ItemType &value) {
-  if (!(m_sequence)) {
-    return -1;
-  }
-
   int counter = 0;
   for (int pos = 0; pos < m_size; pos++) {
     const ItemType current_value = m_sequence[pos];
@@ -102,7 +98,7 @@ int Sequence::remove(const ItemType &value) {
 }
 
 bool Sequence::get(int pos, ItemType &value) const {
-  if (!(m_sequence && pos >= 0 && pos < m_size)) {
+  if (!(pos >= 0 && pos < m_size)) {
     return false;
   }
 
@@ -112,7 +108,7 @@ bool Sequence::get(int pos, ItemType &value) const {
 }
 
 bool Sequence::set(int pos, const ItemType &value) {
-  if (!(m_sequence && pos >= 0 && pos < m_size)) {
+  if (!(pos >= 0 && pos < m_size)) {
     return false;
   }
 
@@ -122,10 +118,6 @@ bool Sequence::set(int pos, const ItemType &value) {
 }
 
 int Sequence::find(const ItemType &value) const {
-  if (!m_sequence) {
-    return -1;
-  }
-
   for (int i = 0; i < m_size; i++) {
     const ItemType current_value = m_sequence[i];
     if (value == current_value) {
