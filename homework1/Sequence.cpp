@@ -122,30 +122,34 @@ int Sequence::find(const ItemType &value) const {
 
 void Sequence::swap(Sequence &other) {
   const bool this_is_shorter = m_size < other.size();
-  const int original_other_size = other.size();
-  const int common_size = this_is_shorter ? m_size : original_other_size;
+  const int prev_other_size = other.size();
+  const int common_size = this_is_shorter ? m_size : prev_other_size;
 
-  // Swap items up to the common size of each Sequence. For example, if
-  // `this.size()` is 5 and `other.size()` is 10, 5 items will be swapped.
+  // Swap values up to the common size of each Sequence. For example, if
+  // `this.size()` is 5 and `other.size()` is 10, 5 values will be swapped.
   for (int i = 0; i < common_size; i++) {
     ItemType temp = m_sequence[i];
     other.get(i, m_sequence[i]);
-    other.set(i, temp);
+    other.erase(i);
+    other.insert(i, temp);
   }
 
-  // Extends and fills the shorter Sequence with items from the longer Sequence
+  // Extends and fills the shorter Sequence with values from the longer Sequence
   if (this_is_shorter) {
-    m_size = original_other_size;
-
-    for (int j = common_size; j < original_other_size; j++) {
-      other.get(j, m_sequence[j]);
+    for (int j = common_size; j < prev_other_size; j++) {
+      // Stay at `current_size` because `erase` moves the rest of `other` to
+      // `current_size`
+      other.get(common_size, m_sequence[j]);
+      other.erase(common_size);
     }
+
+    m_size = prev_other_size;
   } else {
     for (int j = common_size; j < m_size; j++) {
-      other.set(j, m_sequence[j]);
+      other.insert(j, m_sequence[j]);
     }
 
-    m_size = original_other_size;
+    m_size = prev_other_size;
   }
 }
 
