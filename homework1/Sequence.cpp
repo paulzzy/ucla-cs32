@@ -38,11 +38,17 @@ int Sequence::insert(const ItemType &value) {
     return insert(0, value);
   }
 
-  for (int pos = 0; pos < m_size; pos++) {
+  int pos = 0;
+  for (; pos < m_size; pos++) {
     const ItemType current_value = m_sequence[pos];
     if (value <= current_value) {
       return insert(pos, value);
     }
+  }
+
+  // `value` is inserted at the end when it's bigger than everything else
+  if (pos == m_size) {
+    return insert(pos, value);
   }
 
   return -1;
