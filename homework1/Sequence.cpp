@@ -13,14 +13,18 @@ int Sequence::insert(int pos, const ItemType &value) {
     return -1;
   }
 
-  // Starting with the rightmost item, move every item after `pos` right by one
-  // Note that when `pos == m_size`, nothing gets moved
-  for (int i = m_size; i > pos; i--) {
-    m_sequence[i + 1] = m_sequence[i];
+  // Starting with the rightmost value, move every value after `pos` right by
+  // one to its new position
+  // Note that when `pos` equals the previous `m_size`, nothing gets moved
+  for (int i = pos; i < m_size; i++) {
+    const int new_index = m_size - (i - pos);
+    const int prev_index = new_index - 1;
+
+    m_sequence[new_index] = m_sequence[prev_index];
   }
+  m_size++;
 
   m_sequence[pos] = value;
-  m_size++;
 
   return pos;
 }
