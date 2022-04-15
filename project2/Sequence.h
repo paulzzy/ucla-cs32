@@ -3,6 +3,13 @@
 
 using ItemType = unsigned long;
 
+// For a doubly-linked list
+struct Node {
+  ItemType value;
+  Node *next;
+  Node *prev;
+};
+
 class Sequence {
 public:
   // Create an empty sequence (i.e., one whose size() is 0).
@@ -73,6 +80,7 @@ public:
   void dump() const;
 
 private:
+  Node *head;
 };
 
 #endif // SEQUENCE_H
