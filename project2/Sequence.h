@@ -3,13 +3,7 @@
 
 using ItemType = unsigned long;
 
-// For a doubly-linked list
-struct Node {
-  ItemType value;
-  Node *next;
-  Node *prev;
-};
-
+// Implemented using a circular, doubly-linked list with a sentinel head
 class Sequence {
 public:
   // Create an empty sequence (i.e., one whose size() is 0).
@@ -80,7 +74,13 @@ public:
   void dump() const;
 
 private:
-  Node *head;
+  int size;
+  struct Node {
+    ItemType value;
+    Node *next;
+    Node *prev;
+  };
+  Node *sentinel_head;
 };
 
 #endif // SEQUENCE_H
