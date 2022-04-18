@@ -112,26 +112,67 @@ bool Sequence::erase(int pos) {
   return true;
 }
 
-int remove(const ItemType &value) {
-  (void)value;
-  return 0;
+int Sequence::remove(const ItemType &value) {
+  Node *current_node = sentinel_head;
+  int counter = 0;
+
+  for (int i = 0; i < m_size; i++) {
+    current_node = current_node->next;
+    if (current_node->value == value) {
+      current_node = current_node->prev;
+      erase(i);
+      counter++;
+      i--; // Erasing a value replaces the current `pos` with a new value that
+           // must also be checked
+    }
+  }
+
+  return counter;
 }
 
-bool get(int pos, ItemType &value) {
-  (void)pos;
-  (void)value;
-  return false;
+bool Sequence::get(int pos, ItemType &value) const {
+  if (!(pos >= 0 && pos < m_size)) {
+    return false;
+  }
+
+  Node *current_node = sentinel_head;
+
+  for (int i = 0; i <= pos; i++) {
+    current_node = current_node->next;
+  }
+
+  value = current_node->value;
+
+  return true;
 }
 
-bool set(int pos, const ItemType &value) {
-  (void)pos;
-  (void)value;
-  return false;
+bool Sequence::set(int pos, const ItemType &value) {
+  if (!(pos >= 0 && pos < m_size)) {
+    return false;
+  }
+
+  Node *current_node = sentinel_head;
+
+  for (int i = 0; i <= pos; i++) {
+    current_node = current_node->next;
+  }
+
+  current_node->value = value;
+
+  return true;
 }
 
-int find(const ItemType &value) {
-  (void)value;
-  return 0;
+int Sequence::find(const ItemType &value) const {
+  Node *current_node = sentinel_head;
+
+  for (int i = 0; i < m_size; i++) {
+    current_node = current_node->next;
+    if (current_node->value == value) {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 void Sequence::swap(Sequence &other) {

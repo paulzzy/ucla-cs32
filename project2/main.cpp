@@ -40,4 +40,34 @@ int main() {
   assert(test_4.erase(0) == false);
   std::cerr << "test_4: ";
   test_4.dump();
+
+  // `remove()`
+  Sequence test_5;
+  for (int i = 0; i < 10; i++) {
+    assert(test_5.insert(0) == 0);
+  }
+  assert(test_5.remove(0) == 10);
+  assert(test_5.size() == 0);
+  std::cerr << "test_5: ";
+  test_5.dump();
+
+  // `get()` and `set()`
+  Sequence test_6 = test_3;
+  for (int i = 0; i < 10; i++) {
+    ItemType value;
+    assert(test_6.get(i, value));
+    assert(value == i);
+    assert(test_6.set(i, 10));
+    assert(test_6.get(i, value));
+    assert(value == 10);
+  }
+  std::cerr << "test_6: ";
+  test_6.dump();
+
+  // `find()`
+  Sequence test_7(test_6);
+  assert(test_7.find(10) == 0);
+  test_7.dump();
+
+  std::cerr << "uwu passed" << std::endl;
 }
