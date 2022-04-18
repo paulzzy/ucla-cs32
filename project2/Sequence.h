@@ -11,9 +11,9 @@ public:
 
   Sequence(int size);
 
-  Sequence(const Sequence &that);
+  Sequence(const Sequence &other);
 
-  Sequence &operator=(Sequence that);
+  Sequence &operator=(Sequence other);
 
   ~Sequence();
 
@@ -74,7 +74,7 @@ public:
   void dump() const;
 
 private:
-  int size;
+  int m_size;
   struct Node {
     ItemType value;
     Node *next;
@@ -82,5 +82,9 @@ private:
   };
   Node *sentinel_head;
 };
+
+int subsequence(const Sequence &seq1, const Sequence &seq2);
+
+void interleave(const Sequence &seq1, const Sequence &seq2, Sequence &result);
 
 #endif // SEQUENCE_H
