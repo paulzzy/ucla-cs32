@@ -1,7 +1,9 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
-using ItemType = unsigned long;
+#include <string>
+
+using ItemType = std::string;
 
 // Implemented using a circular, doubly-linked list with a sentinel head
 class Sequence {
