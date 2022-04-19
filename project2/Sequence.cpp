@@ -112,26 +112,67 @@ bool Sequence::erase(int pos) {
   return true;
 }
 
-int remove(const ItemType &value) {
-  (void)value;
-  return 0;
+int Sequence::remove(const ItemType &value) {
+  Node *current_node = sentinel_head;
+  int counter = 0;
+
+  for (int i = 0; i < m_size; i++) {
+    current_node = current_node->next;
+    if (current_node->value == value) {
+      current_node = current_node->prev;
+      erase(i);
+      counter++;
+      i--; // Erasing a value replaces the current `pos` with a new value that
+           // must also be checked
+    }
+  }
+
+  return counter;
 }
 
-bool get(int pos, ItemType &value) {
-  (void)pos;
-  (void)value;
-  return false;
+bool Sequence::get(int pos, ItemType &value) const {
+  if (!(pos >= 0 && pos < m_size)) {
+    return false;
+  }
+
+  Node *current_node = sentinel_head;
+
+  for (int i = 0; i <= pos; i++) {
+    current_node = current_node->next;
+  }
+
+  value = current_node->value;
+
+  return true;
 }
 
-bool set(int pos, const ItemType &value) {
-  (void)pos;
-  (void)value;
-  return false;
+bool Sequence::set(int pos, const ItemType &value) {
+  if (!(pos >= 0 && pos < m_size)) {
+    return false;
+  }
+
+  Node *current_node = sentinel_head;
+
+  for (int i = 0; i <= pos; i++) {
+    current_node = current_node->next;
+  }
+
+  current_node->value = value;
+
+  return true;
 }
 
-int find(const ItemType &value) {
-  (void)value;
-  return 0;
+int Sequence::find(const ItemType &value) const {
+  Node *current_node = sentinel_head;
+
+  for (int i = 0; i < m_size; i++) {
+    current_node = current_node->next;
+    if (current_node->value == value) {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 void Sequence::swap(Sequence &other) {
@@ -161,4 +202,64 @@ void Sequence::dump() const {
   }
 
   std::cerr << stringified.str() << std::endl;
+}
+
+int subsequence(const Sequence &seq1, const Sequence &seq2) {
+  int subseq_start = -1;
+  int seq2_index = 0;
+
+  for (int i = 0; i < seq1.size(); i++) {
+    ItemType seq1_current;
+    ItemType seq2_current;
+
+    seq1.get(i, seq1_current);
+    seq2.get(seq2_index, seq2_current);
+
+    if (seq1_current == seq2_current && seq2_index == 0) {
+      // Start of a new possible subsequence
+
+      subseq_start = i;
+      seq2_index++;
+    } else if (seq1_current == seq2_current && seq2_index == seq2.size() - 1) {
+      // When a subsequence is verified, return its starting index
+
+      return subseq_start;
+    } else if (seq1_current == seq2_current) {
+      // Move to the next index of `seq2` when a possible subsequence has not
+      // failed verification
+
+      seq2_index++;
+    } else {
+      // Subsequence verification fails.
+
+      subseq_start = -1;
+      seq2_index = 0;
+    }
+  }
+
+  return subseq_start;
+}
+
+void interleave(const Sequence &seq1, const Sequence &seq2, Sequence &result) {
+  const Sequence *longer = (seq1.size() > seq2.size()) ? &seq1 : &seq2;
+  const Sequence *shorter = (seq1.size() > seq2.size()) ? &seq2 : &seq1;
+
+  // Alternate insert until the shorter Sequence is exhausted
+  for (int i = 0; i < shorter->size(); i++) {
+    ItemType seq1_value;
+    seq1.get(i, seq1_value);
+    result.insert(i * 2, seq1_value);
+
+    ItemType seq2_value;
+    seq2.get(i, seq2_value);
+    result.insert(i * 2 + 1, seq2_value);
+  }
+
+  // Insert the rest of the longer Sequence
+  const int offset = shorter->size();
+  for (int j = shorter->size(); j < longer->size(); j++) {
+    ItemType value;
+    longer->get(j, value);
+    result.insert(j + offset, value);
+  }
 }
