@@ -93,7 +93,7 @@ int Sequence::insert(const ItemType &value) {
 }
 
 bool Sequence::erase(int pos) {
-  if (!(pos >= 0 && pos <= m_size && sentinel_head->next != sentinel_head)) {
+  if (!(pos >= 0 && pos < m_size && sentinel_head->next != sentinel_head)) {
     return false;
   }
 

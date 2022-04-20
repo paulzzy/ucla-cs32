@@ -3,7 +3,7 @@
 
 #include <string>
 
-using ItemType = std::string;
+using ItemType = long;
 
 // Implemented using a circular, doubly-linked list with a sentinel head
 class Sequence {
