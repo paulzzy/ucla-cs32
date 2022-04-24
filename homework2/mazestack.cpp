@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stack>
 
 class Coord {
@@ -58,8 +59,6 @@ bool pathExists(char maze[][10], int sr, int sc, int er, int ec) {
 
   return false;
 }
-
-#include <iostream>
 
 int main() {
   char maze[10][10] = {{'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X'},
