@@ -16,7 +16,7 @@ private:
 // through the maze; return false otherwise
 bool pathExists(char maze[][10], int sr, int sc, int er, int ec) {
   const char WALKWAY = '.';
-  const char FILLED = 'F';
+  const char FILLED = '#';
 
   std::stack<Coord> maze_filler;
 
