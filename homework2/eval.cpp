@@ -11,13 +11,14 @@ const char NOT_CHAR = '!';
 const char TRUE_CHAR = 'T';
 const char FALSE_CHAR = 'F';
 const char SPACE_CHAR = ' ';
+const char SENTINEL = '\0';
 
 // Following convention, ! has higher precedence than &, which has higher
 // precedence than |, and operators of equal precedence associate left to
 // right (so the postfix form of T|F|T is TF|T|, not TFT||, which would be
 // the postfix form of T|(F|T).
 // Returns -1 if the argument is not an operator
-int precedence(char &operator_char) {
+int precedence(const char &operator_char) {
   switch (operator_char) {
   case OR_CHAR:
     return 0;
@@ -41,6 +42,15 @@ int precedence(char &operator_char) {
 //   infix is not a syntactically valid expression, return 1; in
 //   that case, postfix may or may not be changed, but result must
 //   be unchanged.
+//
+// Validation rules:
+// - `infix` cannot be empty
+// - Cannot have empty parentheses
+// - Binary operators must have either parentheses or operands on both sides
+// - Each left parenthesis must be paired with a right parenthesis, and vice
+//   versa
+// - Operands must be followed by a right parenthesis, an operator, or a
+//   sentinel character (which indicates the string's start or end)
 int evaluate(std::string infix, std::string &postfix, bool &result) {
   if (infix.empty()) {
     return 1;
@@ -51,25 +61,57 @@ int evaluate(std::string infix, std::string &postfix, bool &result) {
 
   std::stack<char> operators;
 
-  // Convert infix to postfix
-  // Does not validate yet
-  for (char &current : infix) {
+  // Remove all spaces from `infix`
+  for (size_t i = 0; i < infix.length(); i++) {
+    if (infix.at(i) == SPACE_CHAR) {
+      infix.erase(i, 1);
+      i--; // Erasing a value moves a new value into the current index.
+           // Neutralizing the `i++` allows the current index to be checked
+           // again.
+    }
+  }
+
+  // Validate `infix` syntax and convert to postfix notation
+  for (size_t j = 0; j < infix.length(); j++) {
+    const char current = infix.at(j);
+    const char prev = (j > 0) ? infix.at(j - 1) : SENTINEL;
+    const char next = (j < infix.length() - 1) ? infix.at(j + 1) : SENTINEL;
+
     switch (current) {
     // Operands
     case TRUE_CHAR:
     case FALSE_CHAR:
+      // Operands must be followed by a binary operator, a right parenthesis, or
+      // a sentinel character (which indicates the string's start or end)
+      if (!(next == AND_CHAR || next == OR_CHAR || next == RIGHT_PAREN ||
+            next == SENTINEL)) {
+        return 1;
+      }
+
       postfix += current;
       break;
 
     case LEFT_PAREN:
+      // Cannot have empty parentheses
+      if (next == RIGHT_PAREN) {
+        return 1;
+      }
+
       operators.push(LEFT_PAREN);
       break;
 
     case RIGHT_PAREN:
-      while (operators.top() != LEFT_PAREN) {
+      while (!operators.empty() && operators.top() != LEFT_PAREN) {
         postfix += operators.top();
         operators.pop();
       }
+
+      // Each left parenthesis must be paired with a right parenthesis, and vice
+      // versa
+      if (operators.empty()) {
+        return 1;
+      }
+
       operators.pop(); // Pops `LEFT_PAREN`
       break;
 
@@ -81,16 +123,21 @@ int evaluate(std::string infix, std::string &postfix, bool &result) {
     // Binary operators
     case OR_CHAR:
     case AND_CHAR:
+      // Binary operators must have either operands or parentheses on both
+      // sides, or a unary operator on the right side with either an operand or
+      // parenthesis on the left side
+      if (!(next == TRUE_CHAR || next == FALSE_CHAR || next == LEFT_PAREN ||
+            next == NOT_CHAR) ||
+          !(prev == TRUE_CHAR || prev == FALSE_CHAR || prev == RIGHT_PAREN)) {
+        return 1;
+      }
+
       while (!operators.empty() && operators.top() != LEFT_PAREN &&
              precedence(current) <= precedence(operators.top())) {
         postfix += operators.top();
         operators.pop();
       }
       operators.push(current);
-      break;
-
-    // Spaces are noop
-    case SPACE_CHAR:
       break;
 
     // Invalid characters in `infix`
@@ -101,6 +148,12 @@ int evaluate(std::string infix, std::string &postfix, bool &result) {
   }
 
   while (!operators.empty()) {
+    // Each left parenthesis must be paired with a right parenthesis, and vice
+    // versa
+    if (operators.top() == LEFT_PAREN) {
+      return 1;
+    }
+
     postfix += operators.top();
     operators.pop();
   }
@@ -158,4 +211,23 @@ int main() {
          answer);
   assert(evaluate("T&!(F|T&T|F)|!!!(F&T&F)", postfix, answer) == 0 &&
          postfix == "TFTT&|F|!&FT&F&!!!|" && answer);
+  assert(evaluate("T| F", postfix, answer) == 0 && postfix == "TF|" && answer);
+  assert(evaluate("T|", postfix, answer) == 1);
+  assert(evaluate("F F", postfix, answer) == 1);
+  assert(evaluate("TF", postfix, answer) == 1);
+  assert(evaluate("()", postfix, answer) == 1);
+  assert(evaluate("()T", postfix, answer) == 1);
+  assert(evaluate("T(F|T)", postfix, answer) == 1);
+  assert(evaluate("T(&T)", postfix, answer) == 1);
+  assert(evaluate("(T&(F|F)", postfix, answer) == 1);
+  assert(evaluate("T+F", postfix, answer) == 1);
+  assert(evaluate("", postfix, answer) == 1);
+  assert(evaluate("F  |  !F & (T&F) ", postfix, answer) == 0 &&
+         postfix == "FF!TF&&|" && !answer);
+  assert(evaluate(" F  ", postfix, answer) == 0 && postfix == "F" && !answer);
+  assert(evaluate("((T))", postfix, answer) == 0 && postfix == "T" && answer);
+  // Extra
+  assert(evaluate("T)", postfix, answer) == 1);
+
+  std::cerr << "tada passed :DD" << std::endl;
 }
