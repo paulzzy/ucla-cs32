@@ -77,4 +77,20 @@ int main() {
   } else {
     std::cout << "Out of luck!" << std::endl;
   }
+
+  char maze_2[10][10];
+  for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 10; j++) {
+      maze_2[i][j] = '.';
+    }
+  }
+
+  pathExists(maze_2, 4, 4, 7, 4);
+
+  for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 10; j++) {
+      std::cerr << maze_2[i][j] << ", ";
+    }
+    std::cerr << std::endl;
+  }
 }
