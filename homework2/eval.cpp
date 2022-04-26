@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stack>
 #include <stdexcept>
+#include <string>
 
 const char LEFT_PAREN = '(';
 const char RIGHT_PAREN = ')';
