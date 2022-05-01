@@ -1,7 +1,7 @@
-#include <string> // Comment out when submitting
+// #include <string> // Comment out when submitting
 
-bool somePredicate(const std::string &candidate) {
-} // Comment out when submitting
+// bool somePredicate(const std::string &candidate) {
+// } // Comment out when submitting
 
 // Return false if the somePredicate function returns true for at
 // least one of the array elements; return true otherwise.
@@ -103,4 +103,4 @@ bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
   return has(a1, n1 - 1, a2, n2);
 }
 
-int main() {} // Comment out when submitting
+// int main() {} // Comment out when submitting
