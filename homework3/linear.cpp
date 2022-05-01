@@ -1,13 +1,16 @@
-// #include <string> // Comment out when submitting
+#include <string> // Comment out when submitting
 
-// bool somePredicate(std::string candidate) {} // Comment out when submitting
+bool somePredicate(const std::string &candidate) {
+} // Comment out when submitting
 
 // Return false if the somePredicate function returns true for at
 // least one of the array elements; return true otherwise.
 bool allFalse(const std::string a[], int n) {
   if (n <= 0) {
     return true;
-  } else if (somePredicate(a[n - 1])) {
+  }
+
+  if (somePredicate(a[n - 1])) {
     return false;
   }
 
@@ -19,7 +22,9 @@ bool allFalse(const std::string a[], int n) {
 int countFalse(const std::string a[], int n) {
   if (n <= 0) {
     return 0;
-  } else if (!somePredicate(a[n - 1])) {
+  }
+
+  if (!somePredicate(a[n - 1])) {
     return 1 + countFalse(a, n - 1);
   }
 
@@ -32,7 +37,9 @@ int countFalse(const std::string a[], int n) {
 int firstFalse(const std::string a[], int n) {
   if (n <= 0) {
     return -1;
-  } else if (!somePredicate(a[0])) {
+  }
+
+  if (!somePredicate(a[0])) {
     return 0;
   }
 
@@ -46,7 +53,9 @@ int firstFalse(const std::string a[], int n) {
 int positionOfLeast(const std::string a[], int n) {
   if (n <= 0) {
     return -1;
-  } else if (n == 1) {
+  }
+
+  if (n == 1) {
     return 0;
   }
 
@@ -79,7 +88,8 @@ int positionOfLeast(const std::string a[], int n) {
 bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
   if (n1 == 0 || n2 == 0) {
     return false;
-  } else if (n2 == 1 && a1[n1 - 1] == a2[0]) {
+  }
+  if (n2 == 1 && a1[n1 - 1] == a2[0]) {
     return true;
   }
 
@@ -93,4 +103,4 @@ bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
   return has(a1, n1 - 1, a2, n2);
 }
 
-// int main() {} // Comment out when submitting
+int main() {} // Comment out when submitting
