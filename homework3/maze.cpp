@@ -11,6 +11,7 @@ private:
 
 // Return true if there is a path from (start_row, start_col) to
 // (end_row, end_col) through the maze; return false otherwise
+// NOLINTNEXTLINE(misc-no-recursion)
 bool pathExists(char maze[][10], int start_row, int start_col, int end_row,
                 int end_col) {
   const char WALKWAY = '.';
@@ -29,7 +30,9 @@ bool pathExists(char maze[][10], int start_row, int start_col, int end_row,
 
   const Coord locations[] = {west, north, east, south};
 
-  for (Coord loc : locations) {
+  // Linter suggests `std::any_of`, which requires `#include <algorithm>`. Prof.
+  // Smallberg might not allow that include directive.
+  for (Coord loc : locations) { // NOLINT(readability-use-anyofallof)
     if (maze[loc.row()][loc.col()] == WALKWAY) {
       maze[loc.row()][loc.col()] = FILLED;
       if (pathExists(maze, loc.row(), loc.col(), end_row, end_col)) {
