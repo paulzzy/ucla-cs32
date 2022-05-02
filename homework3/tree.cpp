@@ -1,3 +1,15 @@
+#define DO_NOT_INCLUDE_IN_SUBMISSION
+
+#ifdef DO_NOT_INCLUDE_IN_SUBMISSION
+
+#include <algorithm>
+#include <cassert>
+#include <iostream>
+#include <iterator>
+#include <string>
+
+#endif
+
 // Return the number of ways that all n2 elements of a2 appear
 // in the n1 element array a1 in the same order (though not
 // necessarily consecutively).  The empty sequence appears in a
@@ -112,4 +124,31 @@ void order(std::string a[], int n) {
   order(a + right_lower_bound, n - right_lower_bound);
 }
 
+#ifdef DO_NOT_INCLUDE_IN_SUBMISSION
+
+int main() {
+  // `numberOfTimesHas`
+  const std::string test1_1[] = {"merida", "tiana", "raya", "belle",
+                                 "tiana",  "raya",  "moana"};
+  const int size1_1 = 7;
+  const std::string test1_2[] = {"merida", "belle", "raya"};
+  const std::string test1_3[] = {"merida", "raya", "moana"};
+  const std::string test1_4[] = {"belle", "merida", "raya"};
+  const std::string test1_5[] = {"tiana", "raya", "moana"};
+  const int size1_2 = 3;
+
+  assert(numberOfTimesHas(test1_1, size1_1, test1_2, size1_2) == 1);
+  assert(numberOfTimesHas(test1_1, size1_1, test1_3, size1_2) == 2);
+  assert(numberOfTimesHas(test1_1, size1_1, test1_4, size1_2) == 0);
+  assert(numberOfTimesHas(test1_1, size1_1, test1_5, size1_2) == 3);
+
+  // `order`
+  std::string test2[] = {"5", "3", "4", "2", "1"};
+  const int size2 = 5;
+  order(test2, size2);
+  assert(std::is_sorted(std::begin(test2), std::end(test2)));
+
+  std::cerr << "noice passed" << std::endl;
 }
+
+#endif
