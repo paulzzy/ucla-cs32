@@ -1,7 +1,13 @@
-// #include <string> // Comment out when submitting
+#define DO_NOT_INCLUDE_IN_SUBMISSION
 
-// bool somePredicate(const std::string &candidate) {
-// } // Comment out when submitting
+#ifdef DO_NOT_INCLUDE_IN_SUBMISSION
+
+#include <iostream>
+#include <string>
+
+bool somePredicate(const std::string &candidate) { return candidate.empty(); }
+
+#endif
 
 // Return false if the somePredicate function returns true for at
 // least one of the array elements; return true otherwise.
@@ -116,4 +122,13 @@ bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
   return has(a1, n1 - 1, a2, n2);
 }
 
-// int main() {} // Comment out when submitting
+#ifdef DO_NOT_INCLUDE_IN_SUBMISSION
+
+int main() {
+  std::string test[] = {"a", "b", "c", "", "e"};
+  const int test_size = 5;
+
+  std::cerr << std::boolalpha << has(test, test_size, test, test_size) << "\n";
+}
+
+#endif
