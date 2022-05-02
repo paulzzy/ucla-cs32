@@ -5,7 +5,7 @@ struct Coord {
 
 // Return true if there is a path from (start_row, start_col) to
 // (end_row, end_col) through the maze; return false otherwise
-// NOLINTNEXTLINE(misc-no-recursion)
+// NOLINTNEXTLINE(misc-no-recursion, readability-magic-numbers)
 bool pathExists(char maze[][10], int start_row, int start_col, int end_row,
                 int end_col) {
   const char WALKWAY = '.';
