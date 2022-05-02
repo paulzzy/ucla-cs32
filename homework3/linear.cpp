@@ -86,14 +86,18 @@ int positionOfLeast(const std::string a[], int n) {
 // or
 //    "merida" "belle" "belle"
 bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
-  // Negative sizes or `a2` is not a subsequence
-  if (n1 < 0 || n2 < 0 || (n1 == 0 && n2 > 0)) {
+  // Negative sizes
+  if (n1 < 0 || n2 < 0) {
     return false;
   }
 
-  // Empty subsequence or non-empty subsequence that was reduced to empty after
-  // passing validation on previous recursive calls
-  if (n2 == 0) {
+  // Invalid subsequence
+  if (n1 == 0 && n2 > 0) {
+    return false;
+  }
+
+  // Valid subsequence
+  if (n1 == 0 && n2 == 0) {
     return true;
   }
 
