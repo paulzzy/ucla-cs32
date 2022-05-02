@@ -1,12 +1,6 @@
-class Coord {
-public:
-  Coord(int rr, int cc) : m_row(rr), m_col(cc) {}
-  int row() const { return m_row; }
-  int col() const { return m_col; }
-
-private:
-  int m_row;
-  int m_col;
+struct Coord {
+  int row;
+  int col;
 };
 
 // Return true if there is a path from (start_row, start_col) to
@@ -23,19 +17,19 @@ bool pathExists(char maze[][10], int start_row, int start_col, int end_row,
 
   maze[start_row][start_col] = FILLED;
 
-  const Coord west = Coord(start_row, start_col - 1);
-  const Coord north = Coord(start_row - 1, start_col);
-  const Coord east = Coord(start_row, start_col + 1);
-  const Coord south = Coord(start_row + 1, start_col);
+  const Coord west = {start_row, start_col - 1};
+  const Coord north = {start_row - 1, start_col};
+  const Coord east = {start_row, start_col + 1};
+  const Coord south = {start_row + 1, start_col};
 
   const Coord locations[] = {west, north, east, south};
 
   // Linter suggests `std::any_of`, which requires `#include <algorithm>`. Prof.
   // Smallberg might not allow that include directive.
   for (Coord loc : locations) { // NOLINT(readability-use-anyofallof)
-    if (maze[loc.row()][loc.col()] == WALKWAY) {
-      maze[loc.row()][loc.col()] = FILLED;
-      if (pathExists(maze, loc.row(), loc.col(), end_row, end_col)) {
+    if (maze[loc.row][loc.col] == WALKWAY) {
+      maze[loc.row][loc.col] = FILLED;
+      if (pathExists(maze, loc.row, loc.col, end_row, end_col)) {
         return true;
       }
     }
