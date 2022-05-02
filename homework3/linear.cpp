@@ -5,6 +5,7 @@
 
 // Return false if the somePredicate function returns true for at
 // least one of the array elements; return true otherwise.
+// NOLINTNEXTLINE(misc-no-recursion)
 bool allFalse(const std::string a[], int n) {
   if (n <= 0) {
     return true;
@@ -19,6 +20,7 @@ bool allFalse(const std::string a[], int n) {
 
 // Return the number of elements in the array for which the
 // somePredicate function returns false.
+// NOLINTNEXTLINE(misc-no-recursion)
 int countFalse(const std::string a[], int n) {
   if (n <= 0) {
     return 0;
@@ -34,6 +36,7 @@ int countFalse(const std::string a[], int n) {
 // Return the subscript of the first element in the array for which
 // the somePredicate function returns false.  If there is no such
 // element, return -1.
+// NOLINTNEXTLINE(misc-no-recursion)
 int firstFalse(const std::string a[], int n) {
   if (n <= 0) {
     return -1;
@@ -50,6 +53,7 @@ int firstFalse(const std::string a[], int n) {
 // return the smallest subscript m such that a[m] <= a[k] for all
 // k from 0 to n-1).  If the function is told that no strings are to
 // be considered in the array, return -1.
+// NOLINTNEXTLINE(misc-no-recursion)
 int positionOfLeast(const std::string a[], int n) {
   if (n <= 0) {
     return -1;
@@ -85,6 +89,7 @@ int positionOfLeast(const std::string a[], int n) {
 //    "tiana" "moana" "belle"
 // or
 //    "merida" "belle" "belle"
+// NOLINTNEXTLINE(misc-no-recursion)
 bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
   // Negative sizes
   if (n1 < 0 || n2 < 0) {
