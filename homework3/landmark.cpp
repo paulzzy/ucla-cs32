@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
-#include <utility>
 
 class Landmark {
 public:
+  // NOLINTNEXTLINE(performance-unnecessary-value-param)
   Landmark(std::string name) : m_name(name) {}
   virtual ~Landmark() {}
 
@@ -17,6 +17,7 @@ private:
 
 class Hotel : public Landmark {
 public:
+  // NOLINTNEXTLINE(performance-unnecessary-value-param)
   Hotel(std::string name) : Landmark(name) {}
   ~Hotel() { std::cout << "Destroying the hotel " << name() << ".\n"; }
 
@@ -25,6 +26,7 @@ public:
 
 class Restaurant : public Landmark {
 public:
+  // NOLINTNEXTLINE(performance-unnecessary-value-param)
   Restaurant(std::string name, int capacity)
       : Landmark(std::move(name)), m_capacity(capacity) {}
   ~Restaurant() {
@@ -32,7 +34,7 @@ public:
   }
 
   std::string icon() const {
-    if (m_capacity < 40) {
+    if (m_capacity < 40) { // NOLINT(readability-magic-numbers)
       return "small knife/fork";
     }
 
@@ -63,8 +65,10 @@ int main() {
   // Restaurants have a name and seating capacity.  Restaurants with a
   // capacity under 40 have a small knife/fork icon; those with a capacity
   // 40 or over have a large knife/fork icon.
-  landmarks[1] = new Restaurant("Bruin Bite", 30);
-  landmarks[2] = new Restaurant("La Morsure de l'Ours", 100);
+  landmarks[1] =
+      new Restaurant("Bruin Bite", 30); // NOLINT(readability-magic-numbers)
+  landmarks[2] = new Restaurant("La Morsure de l'Ours",
+                                100); // NOLINT(readability-magic-numbers)
   landmarks[3] = new Hospital("UCLA Medical Center");
 
   std::cout << "Here are the landmarks." << std::endl;
