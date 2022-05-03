@@ -26,9 +26,9 @@ public:
 
 class Restaurant : public Landmark {
 public:
-  // NOLINTNEXTLINE(performance-unnecessary-value-param)
   Restaurant(std::string name, int capacity)
-      : Landmark(std::move(name)), m_capacity(capacity) {}
+      // NOLINTNEXTLINE(performance-unnecessary-value-param)
+      : Landmark(name), m_capacity(capacity) {}
   ~Restaurant() {
     std::cout << "Destroying the restaurant " << name() << ".\n";
   }
@@ -47,7 +47,8 @@ private:
 
 class Hospital : public Landmark {
 public:
-  Hospital(std::string name) : Landmark(std::move(name)) {}
+  // NOLINTNEXTLINE(performance-unnecessary-value-param)
+  Hospital(std::string name) : Landmark(name) {}
   ~Hospital() { std::cout << "Destroying the hospital " << name() << ".\n"; }
 
   std::string color() const { return "blue"; }

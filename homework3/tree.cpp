@@ -35,7 +35,7 @@ int numberOfTimesHas(const std::string a1[], int n1, const std::string a2[],
   }
 
   // Valid subsequence
-  if (n1 == 0 && n2 == 0) {
+  if (n1 >= 0 && n2 == 0) {
     return 1;
   }
 
