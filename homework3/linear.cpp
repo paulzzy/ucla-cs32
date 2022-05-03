@@ -69,10 +69,12 @@ int firstFalse(const std::string a[], int n) {
 // be considered in the array, return -1.
 // NOLINTNEXTLINE(misc-no-recursion)
 int positionOfLeast(const std::string a[], int n) {
+  // Negative sizes
   if (n <= 0) {
     return -1;
   }
 
+  // Only one element in array
   if (n == 1) {
     return 0;
   }
@@ -81,7 +83,9 @@ int positionOfLeast(const std::string a[], int n) {
   const std::string candidate = a[n - 1];
   const std::string min = a[min_index];
 
-  if (candidate <= min) {
+  // Since `min_index` starts off as 0, avoid replacing `min` with `candidate`
+  // if they are equal, since `min_index` should be as small as possible
+  if (candidate < min) {
     return n - 1;
   }
 
