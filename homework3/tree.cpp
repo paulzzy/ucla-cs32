@@ -74,7 +74,8 @@ void exchange(std::string &x, std::string &y) {
 //   * for firstGreater <= i < n, a[i] > splitter
 // All the elements < splitter end up in no particular order.
 // All the elements > splitter end up in no particular order.
-void split(std::string a[], int n, const std::string &splitter,
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+void split(std::string a[], int n, std::string splitter,
            // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
            int &firstNotLess, int &firstGreater) {
   if (n < 0) {
