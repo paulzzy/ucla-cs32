@@ -1,5 +1,11 @@
+#define DO_NOT_INCLUDE_IN_SUBMISSION
+
+#ifdef DO_NOT_INCLUDE_IN_SUBMISSION
+
 #include <iostream>
 #include <string>
+
+#endif
 
 class Landmark {
 public:
@@ -55,6 +61,8 @@ public:
   std::string icon() const { return "H"; }
 };
 
+#ifdef DO_NOT_INCLUDE_IN_SUBMISSION
+
 void display(const Landmark *lm) {
   std::cout << "Display a " << lm->color() << " " << lm->icon() << " icon for "
             << lm->name() << "." << std::endl;
@@ -83,3 +91,5 @@ int main() {
     delete landmarks[k];
   }
 }
+
+#endif

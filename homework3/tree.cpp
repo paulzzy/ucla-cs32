@@ -25,8 +25,12 @@
 int numberOfTimesHas(const std::string a1[], int n1, const std::string a2[],
                      int n2) {
   // Negative sizes
-  if (n1 < 0 || n2 < 0) {
-    return 0;
+  if (n1 < 0) {
+    n1 = 0;
+  }
+
+  if (n2 < 0) {
+    n2 = 0;
   }
 
   // Invalid subsequence
@@ -131,23 +135,110 @@ int main() {
   // `numberOfTimesHas`
   const std::string test1_1[] = {"merida", "tiana", "raya", "belle",
                                  "tiana",  "raya",  "moana"};
-  const int size1_1 = 7;
   const std::string test1_2[] = {"merida", "belle", "raya"};
   const std::string test1_3[] = {"merida", "raya", "moana"};
   const std::string test1_4[] = {"belle", "merida", "raya"};
   const std::string test1_5[] = {"tiana", "raya", "moana"};
-  const int size1_2 = 3;
 
-  assert(numberOfTimesHas(test1_1, size1_1, test1_2, size1_2) == 1);
-  assert(numberOfTimesHas(test1_1, size1_1, test1_3, size1_2) == 2);
-  assert(numberOfTimesHas(test1_1, size1_1, test1_4, size1_2) == 0);
-  assert(numberOfTimesHas(test1_1, size1_1, test1_5, size1_2) == 3);
+  assert(numberOfTimesHas(test1_1, 7, test1_2, 3) == 1);
+  assert(numberOfTimesHas(test1_1, 7, test1_3, 3) == 2);
+  assert(numberOfTimesHas(test1_1, 7, test1_4, 3) == 0);
+  assert(numberOfTimesHas(test1_1, 7, test1_5, 3) == 3);
+
+  {
+    std::string test1_a1[4]{"0", "1", "2", "3"};
+    std::string test2_a1[5]{"0", "1", "2", "2", "3"};
+    std::string valid1[4][3]{
+        {"0", "1", "2"}, {"0", "1", "3"}, {"0", "2", "3"}, {"1", "2", "3"}};
+    std::string valid2[6][2]{{"0", "1"}, {"0", "2"}, {"0", "3"},
+                             {"1", "2"}, {"1", "3"}, {"2", "3"}};
+    std::string valid3[4][1]{{"0"}, {"1"}, {"2"}, {"3"}};
+
+    for (int i = 0; i < 4; i++) {
+      assert(numberOfTimesHas(test1_a1, 4, valid1[i], 3) == 1);
+    }
+    assert(numberOfTimesHas(test2_a1, 5, valid1[0], 3) == 2);
+    assert(numberOfTimesHas(test2_a1, 5, valid1[1], 3) == 1);
+    assert(numberOfTimesHas(test2_a1, 5, valid1[2], 3) == 2);
+    assert(numberOfTimesHas(test2_a1, 5, valid1[3], 3) == 2);
+    for (int i = 0; i < 6; i++) {
+      assert(numberOfTimesHas(test1_a1, 4, valid2[i], 2) == 1);
+    }
+    assert(numberOfTimesHas(test2_a1, 5, valid2[0], 2) == 1);
+    assert(numberOfTimesHas(test2_a1, 5, valid2[1], 2) == 2);
+    assert(numberOfTimesHas(test2_a1, 5, valid2[2], 2) == 1);
+    assert(numberOfTimesHas(test2_a1, 5, valid2[3], 2) == 2);
+    assert(numberOfTimesHas(test2_a1, 5, valid2[4], 2) == 1);
+    assert(numberOfTimesHas(test2_a1, 5, valid2[5], 2) == 2);
+    for (int i = 0; i < 4; i++) {
+      assert(numberOfTimesHas(test1_a1, 4, valid3[i], 1));
+      assert(numberOfTimesHas(test2_a1, 5, valid3[i], 1));
+    }
+    assert(numberOfTimesHas(test1_a1, 0, test1_a1, 0) == 1);
+    assert(numberOfTimesHas(test1_a1, 4, test1_a1, 0) == 1);
+    assert(numberOfTimesHas(test1_a1, 4, test1_a1, 4) == 1);
+    assert(numberOfTimesHas(test1_a1, 0, test1_a1, 4) == 0);
+    assert(numberOfTimesHas(test1_a1, 4, test2_a1, 5) == 0);
+
+    std::string invalid1[2][5]{{"0", "1", "2", "3", "4"},
+                               {"4", "0", "1", "2", "3"}};
+    std::string invalid2[3][4]{
+        {"0", "1", "2", "4"}, {"4", "0", "1", "2"}, {"1", "2", "3", "4"}};
+    std::string invalid3[3][3]{
+        {"1", "2", "4"}, {"4", "0", "1"}, {"2", "3", "4"}};
+    std::string invalid4[3][2]{{"2", "4"}, {"4", "0"}, {"3", "4"}};
+    std::string invalid5[1]{"4"};
+
+    for (int i = 0; i < 2; i++) {
+      assert(numberOfTimesHas(test1_a1, 4, invalid1[i], 5) == 0);
+    }
+    for (int i = 0; i < 3; i++) {
+      assert(numberOfTimesHas(test1_a1, 4, invalid2[i], 4) == 0);
+    }
+    for (int i = 0; i < 3; i++) {
+      assert(numberOfTimesHas(test1_a1, 4, invalid3[i], 3) == 0);
+    }
+    for (int i = 0; i < 3; i++) {
+      assert(numberOfTimesHas(test1_a1, 4, invalid4[i], 2) == 0);
+    }
+    assert(numberOfTimesHas(test1_a1, 4, invalid5, 1) == 0);
+  }
+
+  {
+    std::string a[7] = {"10", "50", "40", "20", "50", "40", "30"};
+    std::string a1[3] = {"10", "20", "40"};
+    std::string a2[3] = {"10", "40", "30"};
+    std::string a3[3] = {"20", "10", "40"};
+    std::string a4[3] = {"50", "40", "30"};
+    assert(numberOfTimesHas(a, 7, a1, 3) == 1);
+    assert(numberOfTimesHas(a, 7, a2, 3) == 2);
+    assert(numberOfTimesHas(a, 7, a3, 3) == 0);
+    assert(numberOfTimesHas(a, 7, a4, 3) == 3);
+    assert(numberOfTimesHas(a, -1, a4, 0) == 1);
+    assert(numberOfTimesHas(a, -1, a4, 1) == 0);
+  }
 
   // `order`
   std::string test2[] = {"5", "3", "4", "2", "1"};
   const int size2 = 5;
   order(test2, size2);
   assert(std::is_sorted(std::begin(test2), std::end(test2)));
+
+  {
+    //    10 20 40            1
+    //    10 40 30            2
+    //    20 10 40            0
+    //    50 40 30            3
+
+    std::string b[5] = {"4", "3", "5", "1", "1"};
+    order(b, 5);
+
+    for (int i = 0; i < 5; i++) {
+      std::cerr << b[i] << " ";
+    }
+
+    std::cerr << std::endl;
+  }
 
   std::cerr << "noice passed" << std::endl;
 }

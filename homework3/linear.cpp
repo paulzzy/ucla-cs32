@@ -2,6 +2,7 @@
 
 #ifdef DO_NOT_INCLUDE_IN_SUBMISSION
 
+#include <cassert>
 #include <iostream>
 #include <string>
 
@@ -110,8 +111,12 @@ int positionOfLeast(const std::string a[], int n) {
 // NOLINTNEXTLINE(misc-no-recursion)
 bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
   // Negative sizes
-  if (n1 < 0 || n2 < 0) {
-    return false;
+  if (n1 < 0) {
+    n1 = 0;
+  }
+
+  if (n2 < 0) {
+    n2 = 0;
   }
 
   // Invalid subsequence
@@ -137,10 +142,159 @@ bool has(const std::string a1[], int n1, const std::string a2[], int n2) {
 #ifdef DO_NOT_INCLUDE_IN_SUBMISSION
 
 int main() {
-  std::string test[] = {"a", "b", "c", "", "e"};
-  const int test_size = 5;
+  // Test allFalse
+  {
+    std::string allFalse_True[5]{"o", "o", "o", "o", "o"};
+    assert(allFalse(allFalse_True, 5));
+    std::string allFalse_False[5][5]{
+        {
+            "",
+            "o",
+            "o",
+            "o",
+            "o",
+        },
+        {
+            "o",
+            "",
+            "o",
+            "o",
+            "o",
+        },
+        {
+            "o",
+            "o",
+            "",
+            "o",
+            "o",
+        },
+        {
+            "o",
+            "o",
+            "o",
+            "",
+            "o",
+        },
+        {
+            "o",
+            "o",
+            "o",
+            "o",
+            "",
+        },
+    };
+    for (int i = 0; i < 5; i++) {
+      assert(!allFalse(allFalse_False[i], 5));
+    }
+  }
+  // Test countFalse
+  {
+    std::string countFalseTest[12][5]{
+        {"", "", "", "", ""},      {"", "", "", "", ""},
+        {"o", "", "", "", ""},     {"", "", "", "", "o"},
+        {"o", "o", "", "", ""},    {"", "", "", "o", "o"},
+        {"o", "o", "o", "", ""},   {"", "", "o", "o", "o"},
+        {"o", "o", "o", "o", ""},  {"", "o", "o", "o", "o"},
+        {"o", "o", "o", "o", "o"}, {"o", "o", "o", "o", "o"}};
+    for (int i = 0; i < 6; i++) {
+      assert(countFalse(countFalseTest[2 * i], 5) == i);
+      assert(countFalse(countFalseTest[2 * i + 1], 5) == i);
+    }
+  }
+  // Test firstFalse
+  {
+    std::string firstFalseLeft[5][5]{{"o", "", "", "", ""},
+                                     {"o", "o", "", "", ""},
+                                     {"o", "o", "o", "", ""},
+                                     {"o", "o", "o", "o", ""},
+                                     {"o", "o", "o", "o", "o"}};
+    std::string firstFalseRight[5][5]{{"o", "o", "o", "o", "o"},
+                                      {"", "o", "o", "o", "o"},
+                                      {"", "", "o", "o", "o"},
+                                      {"", "", "", "o", "o"},
+                                      {"", "", "", "", "o"}};
+    std::string firstFalseShift[5][5]{{"o", "", "", "", ""},
+                                      {"", "o", "", "", ""},
+                                      {"", "", "o", "", ""},
+                                      {"", "", "", "o", ""},
+                                      {"", "", "", "", "o"}};
+    std::string firstFalseEmpty[5]{"", "", "", "", ""};
+    for (int i = 0; i < 5; i++) {
+      assert(firstFalse(firstFalseLeft[i], 5) == 0);
+      assert(firstFalse(firstFalseRight[i], 5) == i);
+      assert(firstFalse(firstFalseShift[i], 5) == i);
+    }
+    assert(firstFalse(firstFalseEmpty, 5) == -1);
+  }
+  // Test positionOfLeast
+  {
+    std::string reverseOrdered[5]{"4", "3", "2", "1", "0"};
+    std::string ordered[5]{"0", "1", "2", "3", "4"};
+    std::string repeated[5]{"0", "1", "2", "3", "0"};
+    std::string allLeast[5]{"0", "0", "0", "0", "0"};
+    assert(positionOfLeast(reverseOrdered, 0) == -1);
+    assert(positionOfLeast(reverseOrdered, 5) == 4);
+    assert(positionOfLeast(ordered, 5) == 0);
+    assert(positionOfLeast(repeated, 5) == 0);
+    assert(positionOfLeast(allLeast, 5) == 0);
+  }
+  // Test has
+  {
+    std::string test1_a1[4]{"0", "1", "2", "3"};
+    std::string test2_a1[5]{"0", "1", "2", "2", "3"};
+    std::string valid1[4][3]{
+        {"0", "1", "2"}, {"0", "1", "3"}, {"0", "2", "3"}, {"1", "2", "3"}};
+    std::string valid2[6][2]{{"0", "1"}, {"0", "2"}, {"0", "3"},
+                             {"1", "2"}, {"1", "3"}, {"2", "3"}};
+    std::string valid3[4][1]{{"0"}, {"1"}, {"2"}, {"3"}};
 
-  std::cerr << std::boolalpha << has(test, test_size, test, test_size) << "\n";
+    for (int i = 0; i < 4; i++) {
+      assert(has(test1_a1, 4, valid1[i], 3));
+      assert(has(test2_a1, 5, valid1[i], 3));
+    }
+    for (int i = 0; i < 6; i++) {
+      assert(has(test1_a1, 4, valid2[i], 2));
+      assert(has(test2_a1, 5, valid2[i], 2));
+    }
+    for (int i = 0; i < 4; i++) {
+      assert(has(test1_a1, 4, valid3[i], 1));
+      assert(has(test2_a1, 5, valid3[i], 1));
+    }
+    assert(has(test1_a1, 0, test1_a1, 0));
+    assert(has(test1_a1, 4, test1_a1, 0));
+    assert(has(test1_a1, 4, test1_a1, 4));
+    assert(has(test1_a1, 0, test1_a1, 4) == false);
+    assert(has(test1_a1, 4, test2_a1, 5) == false);
+
+    std::string invalid1[2][5]{{"0", "1", "2", "3", "4"},
+                               {"4", "0", "1", "2", "3"}};
+    std::string invalid2[3][4]{
+        {"0", "1", "2", "4"}, {"4", "0", "1", "2"}, {"1", "2", "3", "4"}};
+    std::string invalid3[3][3]{
+        {"1", "2", "4"}, {"4", "0", "1"}, {"2", "3", "4"}};
+    std::string invalid4[3][2]{{"2", "4"}, {"4", "0"}, {"3", "4"}};
+    std::string invalid5[1]{"4"};
+
+    for (int i = 0; i < 2; i++) {
+      assert(has(test1_a1, 4, invalid1[i], 5) == false);
+    }
+    for (int i = 0; i < 3; i++) {
+      assert(has(test1_a1, 4, invalid2[i], 4) == false);
+    }
+    for (int i = 0; i < 3; i++) {
+      assert(has(test1_a1, 4, invalid3[i], 3) == false);
+    }
+    for (int i = 0; i < 3; i++) {
+      assert(has(test1_a1, 4, invalid4[i], 2) == false);
+    }
+    assert(has(test1_a1, 4, invalid5, 1) == false);
+  }
+  std::cout << "           ',\n        .-`-,\\__\n          .\"`   `,\n        "
+               ".'_.  ._  `;.\n    __ / `      `  `.\\ .--.\n   /--,| 0)   0)  "
+               "   )`_.-,)\n  |    ;.-----.__ _-');   /\n   '--./         `.`/ "
+               " `\"`\n      :   '`      |.\n      | \     /  //\n       \\ "
+               "'---'  /'\n        `------' \\\n         _/       `--..."
+            << std::endl;
 }
 
 #endif
