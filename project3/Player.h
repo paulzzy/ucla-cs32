@@ -7,34 +7,32 @@ class Point;
 class Board;
 class Game;
 
-class Player
-{
-  public:
-    Player(std::string nm, const Game& g)
-     : m_name(nm), m_game(g)
-    {}
+class Player {
+public:
+  // NOLINTNEXTLINE(performance-unnecessary-value-param)
+  Player(std::string nm, const Game &g) : m_name(nm), m_game(g) {}
 
-    virtual ~Player() {}
+  virtual ~Player() {}
 
-    std::string name() const { return m_name; }
-    const Game& game() const { return m_game; }
+  std::string name() const { return m_name; }
+  const Game &game() const { return m_game; }
 
-    virtual bool isHuman() const { return false; }
+  virtual bool isHuman() const { return false; }
 
-    virtual bool placeShips(Board& b) = 0;
-    virtual Point recommendAttack() = 0;
-    virtual void recordAttackResult(Point p, bool validShot, bool shotHit,
-                                        bool shipDestroyed, int shipId) = 0;
-    virtual void recordAttackByOpponent(Point p) = 0;
-      // We prevent any kind of Player object from being copied or assigned
-    Player(const Player&) = delete;
-    Player& operator=(const Player&) = delete;
+  virtual bool placeShips(Board &b) = 0;
+  virtual Point recommendAttack() = 0;
+  virtual void recordAttackResult(Point p, bool validShot, bool shotHit,
+                                  bool shipDestroyed, int shipId) = 0;
+  virtual void recordAttackByOpponent(Point p) = 0;
+  // We prevent any kind of Player object from being copied or assigned
+  Player(const Player &) = delete;
+  Player &operator=(const Player &) = delete;
 
-  private:
-    std::string m_name;
-    const Game& m_game;
+private:
+  std::string m_name;
+  const Game &m_game;
 };
 
-Player* createPlayer(std::string type, std::string nm, const Game& g);
+Player *createPlayer(std::string type, std::string nm, const Game &g);
 
 #endif // PLAYER_INCLUDED
