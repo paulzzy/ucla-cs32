@@ -5,6 +5,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <string>
 
 using namespace std;
@@ -22,24 +23,31 @@ public:
   char shipSymbol(int shipId) const;
   string shipName(int shipId) const;
   Player *play(Player *p1, Player *p2, Board &b1, Board &b2, bool shouldPause);
+
+private:
+  int m_rows;
+  int m_cols;
+
+  struct Ship {
+    int length;
+    char symbol;
+    std::string name;
+  };
+
+  std::vector<Ship> ships;
 };
 
 void waitForEnter() {
   cout << "Press enter to continue: ";
-  cin.ignore(10000, '\n');
+  cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
 }
 
-GameImpl::GameImpl(int nRows, int nCols) {
-  // This compiles but may not be correct
-}
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+GameImpl::GameImpl(int nRows, int nCols) : m_rows{nRows}, m_cols{nCols} {}
 
-int GameImpl::rows() const {
-  return -1; // This compiles but may not be correct
-}
+int GameImpl::rows() const { return m_rows; }
 
-int GameImpl::cols() const {
-  return -1; // This compiles but may not be correct
-}
+int GameImpl::cols() const { return m_cols; }
 
 bool GameImpl::isValid(Point p) const {
   return p.r >= 0 && p.r < rows() && p.c >= 0 && p.c < cols();
@@ -50,24 +58,19 @@ Point GameImpl::randomPoint() const {
 }
 
 bool GameImpl::addShip(int length, char symbol, string name) {
-  return false; // This compiles but may not be correct
+  const Ship temp{length, symbol,
+                  name}; // NOLINT(performance-unnecessary-value-param)
+  ships.push_back(temp);
+  return true;
 }
 
-int GameImpl::nShips() const {
-  return -1; // This compiles but may not be correct
-}
+int GameImpl::nShips() const { return static_cast<int>(ships.size()); }
 
-int GameImpl::shipLength(int shipId) const {
-  return -1; // This compiles but may not be correct
-}
+int GameImpl::shipLength(int shipId) const { return ships.at(shipId).length; }
 
-char GameImpl::shipSymbol(int shipId) const {
-  return '?'; // This compiles but may not be correct
-}
+char GameImpl::shipSymbol(int shipId) const { return ships.at(shipId).symbol; }
 
-string GameImpl::shipName(int shipId) const {
-  return ""; // This compiles but may not be correct
-}
+string GameImpl::shipName(int shipId) const { return ships.at(shipId).name; }
 
 Player *GameImpl::play(Player *p1, Player *p2, Board &b1, Board &b2,
                        bool shouldPause) {
@@ -111,7 +114,7 @@ bool Game::addShip(int length, char symbol, string name) {
          << endl;
     return false;
   }
-  if (!isascii(symbol) || !isprint(symbol)) {
+  if (isascii(symbol) == 0 || isprint(symbol) == 0) {
     cout << "Unprintable character with decimal value " << symbol
          << " must not be used as a ship symbol" << endl;
     return false;
@@ -134,7 +137,8 @@ bool Game::addShip(int length, char symbol, string name) {
     cout << "Board is too small to fit all ships" << endl;
     return false;
   }
-  return m_impl->addShip(length, symbol, name);
+  return m_impl->addShip(length, symbol,
+                         name); // NOLINT(performance-unnecessary-value-param)
 }
 
 int Game::nShips() const { return m_impl->nShips(); }
@@ -155,8 +159,9 @@ string Game::shipName(int shipId) const {
 }
 
 Player *Game::play(Player *p1, Player *p2, bool shouldPause) {
-  if (p1 == nullptr || p2 == nullptr || nShips() == 0)
+  if (p1 == nullptr || p2 == nullptr || nShips() == 0) {
     return nullptr;
+  }
   Board b1(*this);
   Board b2(*this);
   return m_impl->play(p1, p2, b1, b2, shouldPause);
