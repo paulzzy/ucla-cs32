@@ -65,10 +65,17 @@ void BoardImpl::clear() {
 }
 
 void BoardImpl::block() {
-  // Block cells with 50% probability
-  for (std::vector<PositionData> &row : board_data) {
-    for (PositionData &position : row) {
-      position.blocked = true;
+  // Randomly block 50% of cells
+  int block_num = m_game.rows() * m_game.cols() / 2;
+
+  while (block_num > 0) {
+    const Point random_point =
+        Point{randInt(m_game.rows()), randInt(m_game.cols())};
+    PositionData &random_position = pos(random_point);
+
+    if (!random_position.blocked) {
+      random_position.blocked = true;
+      block_num--;
     }
   }
 }
