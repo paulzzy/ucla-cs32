@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "globals.h"
 #include <iostream>
+#include <limits>
 #include <string>
 
 using namespace std;
@@ -25,25 +26,29 @@ private:
 };
 
 AwfulPlayer::AwfulPlayer(string nm, const Game &g)
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     : Player(nm, g), m_lastCellAttacked(0, 0) {}
 
 bool AwfulPlayer::placeShips(Board &b) {
   // Clustering ships is bad strategy
-  for (int k = 0; k < game().nShips(); k++)
-    if (!b.placeShip(Point(k, 0), k, HORIZONTAL))
+  for (int k = 0; k < game().nShips(); k++) {
+    if (!b.placeShip(Point(k, 0), k, HORIZONTAL)) {
       return false;
+    }
+  }
   return true;
 }
 
 Point AwfulPlayer::recommendAttack() {
-  if (m_lastCellAttacked.c > 0)
+  if (m_lastCellAttacked.c > 0) {
     m_lastCellAttacked.c--;
-  else {
+  } else {
     m_lastCellAttacked.c = game().cols() - 1;
-    if (m_lastCellAttacked.r > 0)
+    if (m_lastCellAttacked.r > 0) {
       m_lastCellAttacked.r--;
-    else
+    } else {
       m_lastCellAttacked.r = game().rows() - 1;
+    }
   }
   return m_lastCellAttacked;
 }
@@ -65,9 +70,10 @@ void AwfulPlayer::recordAttackByOpponent(Point /* p */) {
 
 bool getLineWithTwoIntegers(int &r, int &c) {
   bool result(cin >> r >> c);
-  if (!result)
+  if (!result) {
     cin.clear(); // clear error state so can do more input operations
-  cin.ignore(10000, '\n');
+  }
+  cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
   return result;
 }
 
@@ -97,13 +103,17 @@ typedef AwfulPlayer GoodPlayer;
 //  createPlayer
 //*********************************************************************
 
-Player *createPlayer(string type, string nm, const Game &g) {
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+Player *createPlayer(string type, // NOLINT(performance-unnecessary-value-param)
+                     string nm,   // NOLINT(performance-unnecessary-value-param)
+                     const Game &g) {
   static string types[] = {"human", "awful", "mediocre", "good"};
 
   int pos;
   for (pos = 0; pos != sizeof(types) / sizeof(types[0]) && type != types[pos];
-       pos++)
+       pos++) {
     ;
+  }
   switch (pos) {
   case 0:
     return new HumanPlayer(nm, g);
