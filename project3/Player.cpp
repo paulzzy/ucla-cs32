@@ -2,8 +2,8 @@
 #include "Board.h"
 #include "Game.h"
 #include "globals.h"
+#include "utility.h"
 #include <iostream>
-#include <limits>
 #include <string>
 
 using namespace std;
@@ -73,13 +73,108 @@ bool getLineWithTwoIntegers(int &r, int &c) {
   if (!result) {
     cin.clear(); // clear error state so can do more input operations
   }
-  cin.ignore(std::numeric_limits<streamsize>::max(), '\n');
+  cin.ignore(STREAM_MAX, '\n');
   return result;
 }
 
-// TODO:  You need to replace this with a real class declaration and
-//        implementation.
-typedef AwfulPlayer HumanPlayer;
+char get_one_char() {
+  char value;
+  if (!(std::cin >> value)) {
+    std::cin.clear();
+  }
+  std::cin.ignore(STREAM_MAX, '\n');
+  return value;
+}
+
+class HumanPlayer : public Player {
+public:
+  HumanPlayer(std::string name, const Game &g);
+  virtual bool isHuman() const { return true; }
+
+  virtual bool placeShips(Board &b);
+  virtual Point recommendAttack();
+
+  // No-op
+  virtual void recordAttackResult(Point p, bool validShot, bool shotHit,
+                                  bool shipDestroyed, int shipId);
+  // No-op
+  virtual void recordAttackByOpponent(Point p);
+};
+
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+HumanPlayer::HumanPlayer(std::string name, const Game &g) : Player(name, g) {}
+
+bool HumanPlayer::placeShips(Board &b) {
+  std::cout << name() << " must place " << game().nShips() << " ships."
+            << std::endl;
+
+  for (int ship_id = 0; ship_id < game().nShips(); ship_id++) {
+    b.display(false);
+
+    // Get direction
+    char input_dir = '\0';
+    bool success_dir = false;
+    do {
+      std::cout << "Enter h or v for direction of " << game().shipName(ship_id)
+                << " (length " << game().shipLength(ship_id) << "): ";
+      input_dir = get_one_char();
+
+      success_dir = input_dir == 'h' || input_dir == 'v';
+      if (!success_dir) {
+        std::cout << "Direction must be h or v." << std::endl;
+      }
+    } while (!success_dir);
+
+    Direction dir =
+        (input_dir == 'h') ? Direction::HORIZONTAL : Direction::VERTICAL;
+
+    // Get point to place ship at
+    Point input_pt{-1, -1};
+    bool success_pt = false;
+    do {
+      std::cout << "Enter row and column of "
+                << (dir == Direction::HORIZONTAL ? "leftmost" : "topmost")
+                << " cell (e.g., 3 5): ";
+
+      const bool is_integers = getLineWithTwoIntegers(input_pt.r, input_pt.c);
+
+      if (!is_integers) {
+        std::cout << "You must enter two integers." << std::endl;
+      } else {
+        success_pt = b.placeShip(input_pt, ship_id, dir);
+        if (!success_pt) {
+          std::cout << "The ship can not be placed there." << std::endl;
+        }
+      }
+
+    } while (!success_pt);
+  }
+
+  return true;
+}
+
+Point HumanPlayer::recommendAttack() {
+  std::cout << "Enter the row and column to attack (e.g., 3 5): ";
+
+  Point input{-1, -1};
+  bool is_integers = false;
+  do {
+    is_integers = getLineWithTwoIntegers(input.r, input.c);
+
+    if (!is_integers) {
+      std::cout << "You must enter two integers." << std::endl;
+    }
+  } while (!is_integers);
+
+  return input;
+}
+
+void HumanPlayer::recordAttackResult(Point /* p */, bool /* validShot */,
+                                     bool /* shotHit */,
+                                     bool /* shipDestroyed */,
+                                     int /* shipId */) {}
+
+void HumanPlayer::recordAttackByOpponent(Point /* p */) {}
 
 //*********************************************************************
 //  MediocrePlayer
