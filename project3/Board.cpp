@@ -286,7 +286,6 @@ bool BoardImpl::attack(Point p, bool &shotHit, bool &shipDestroyed,
   } else {
     // Hit a ship
     shotHit = true;
-    shipId = position.type_id;
 
     shipDestroyed = true; // Start by assuming the ship is destroyed
     ShipData &ship_data = ships_data.at(position.type_id);
@@ -299,6 +298,10 @@ bool BoardImpl::attack(Point p, bool &shotHit, bool &shipDestroyed,
         shipDestroyed = false; // Assumption is incorrect
         ship_data.destroyed = false;
       }
+    }
+
+    if (shipDestroyed) {
+      shipId = position.type_id;
     }
   }
 
