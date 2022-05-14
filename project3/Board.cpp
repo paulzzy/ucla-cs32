@@ -62,6 +62,12 @@ void BoardImpl::clear() {
       position.blocked = false;
     }
   }
+
+  for (ShipData &ship : ships_data) {
+    ship.positions.clear();
+    ship.placed = false;
+    ship.destroyed = false;
+  }
 }
 
 void BoardImpl::block() {
