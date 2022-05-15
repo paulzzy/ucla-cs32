@@ -2,6 +2,7 @@
 #include "Board.h"
 #include "Player.h"
 #include "globals.h"
+#include "utility.h"
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
@@ -22,7 +23,8 @@ public:
   int shipLength(int shipId) const;
   char shipSymbol(int shipId) const;
   string shipName(int shipId) const;
-  Player *play(Player *p1, Player *p2, Board &b1, Board &b2, bool shouldPause);
+  static Player *play(Player *p1, Player *p2, Board &b1, Board &b2,
+                      bool shouldPause);
 
 private:
   int m_rows;
@@ -35,6 +37,14 @@ private:
   };
 
   std::vector<Ship> ships;
+
+  struct AttackData {
+    Point point;
+    bool valid;
+    bool hit_ship;
+    bool destroyed_ship;
+    int ship_id;
+  };
 };
 
 void waitForEnter() {
@@ -72,9 +82,84 @@ char GameImpl::shipSymbol(int shipId) const { return ships.at(shipId).symbol; }
 
 string GameImpl::shipName(int shipId) const { return ships.at(shipId).name; }
 
+std::string attack_message(bool hit_ship, bool destroyed_ship,
+                           const std::string &name) {
+  if (destroyed_ship) {
+    return "destroyed the " + name;
+  }
+
+  if (hit_ship) {
+    return "hit something";
+  }
+
+  return "missed";
+}
+
+void prompt_to_continue() {
+  std::cout << "Press enter to continue: ";
+  std::cin.ignore(STREAM_MAX, '\n');
+}
+
 Player *GameImpl::play(Player *p1, Player *p2, Board &b1, Board &b2,
                        bool shouldPause) {
-  return nullptr; // This compiles but may not be correct
+  if (!p1->placeShips(b1)) {
+    return nullptr;
+  }
+
+  if (!p2->placeShips(b2)) {
+    return nullptr;
+  }
+
+  Player *attacking_player = p1;
+  Player *other_player = p2;
+  Board *other_board = &b2;
+
+  while (!(b1.allShipsDestroyed() || b2.allShipsDestroyed())) {
+    const bool only_shots = other_player->isHuman();
+
+    AttackData attack{Point{-1, -1}, false, false, false, -1};
+    attack.point = attacking_player->recommendAttack();
+
+    std::cout << attacking_player->name() << "'s turn.  Board for "
+              << other_player->name() << ":\n";
+    other_board->display(only_shots);
+
+    // If the attacking player is a human, the user is prompted to attack
+    attack.valid = other_board->attack(attack.point, attack.hit_ship,
+                                       attack.destroyed_ship, attack.ship_id);
+
+    attacking_player->recordAttackResult(attack.point, attack.valid,
+                                         attack.hit_ship, attack.destroyed_ship,
+                                         attack.ship_id);
+    other_player->recordAttackByOpponent(attack.point);
+
+    // Show results of attack
+    const std::string ship_name =
+        attack.destroyed_ship ? other_player->game().shipName(attack.ship_id)
+                              : "";
+    std::cout << attacking_player->name() << " attacked (" << attack.point.r
+              << "," << attack.point.c << ") and "
+              << attack_message(attack.hit_ship, attack.destroyed_ship,
+                                ship_name)
+              << ", resulting in:\n";
+
+    other_board->display(only_shots);
+
+    if (shouldPause) {
+      prompt_to_continue();
+    }
+
+    // Switch players
+    attacking_player = (attacking_player == p1) ? p2 : p1;
+    other_player = (other_player == p1) ? p2 : p1;
+    other_board = (other_board == &b1) ? &b2 : &b1;
+  }
+
+  Player *winner = b1.allShipsDestroyed() ? p2 : p1;
+
+  std::cout << winner->name() << " wins!" << std::endl;
+
+  return winner;
 }
 
 //******************** Game functions *******************************
