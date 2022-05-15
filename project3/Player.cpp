@@ -183,11 +183,175 @@ void HumanPlayer::recordAttackByOpponent(Point /* p */) {}
 //  MediocrePlayer
 //*********************************************************************
 
-// TODO:  You need to replace this with a real class declaration and
-//        implementation.
-typedef AwfulPlayer MediocrePlayer;
+class MediocrePlayer : public Player {
+public:
+  MediocrePlayer(std::string name, const Game &g);
+  virtual bool placeShips(Board &b);
+  virtual Point recommendAttack();
+  virtual void recordAttackResult(Point p, bool validShot, bool shotHit,
+                                  bool shipDestroyed, int shipId);
+  virtual void recordAttackByOpponent(Point p);
+
+private:
+  bool recursively_place(Board &b, int ship_id);
+  Point random_attack();
+  Point cross_pattern_attack();
+  bool was_attacked(Point candidate);
+  void record_attack(Point point);
+
+  bool attack_hit{false};
+  bool attack_destroyed{false};
+  bool used_cross_attack{false};
+  Point randomly_hit_point{-1, -1};
+  std::vector<std::vector<bool>> attacks;
+};
+
+MediocrePlayer::MediocrePlayer(std::string name, const Game &g)
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
+    : Player{name, g}, attacks{static_cast<size_t>(game().rows()),
+                               std::vector<bool>(game().cols(), false)} {}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+bool MediocrePlayer::recursively_place(Board &b, int ship_id) {
+  // All ships placed
+  if (ship_id >= game().nShips()) {
+    return true;
+  }
+
+  for (int i = 0; i < game().rows(); i++) {
+    for (int j = 0; j < game().cols(); j++) {
+      const Point current{i, j};
+      if (b.placeShip(current, ship_id, Direction::HORIZONTAL)) {
+        bool placed_all = recursively_place(b, ship_id + 1);
+
+        if (placed_all) {
+          return true;
+        }
+
+        // Backtrack if impossible to place current ship
+        b.unplaceShip(current, ship_id, Direction::HORIZONTAL);
+      }
+      if (b.placeShip(current, ship_id, Direction::VERTICAL)) {
+        bool placed_all = recursively_place(b, ship_id + 1);
+
+        if (placed_all) {
+          return true;
+        }
+
+        // Backtrack if impossible to place current ship
+        b.unplaceShip(current, ship_id, Direction::VERTICAL);
+      }
+    }
+  }
+
+  // Impossible to place all ships
+  return false;
+}
+
 // Remember that Mediocre::placeShips(Board& b) must start by calling
 // b.block(), and must call b.unblock() just before returning.
+bool MediocrePlayer::placeShips(Board &b) {
+  const int MAX_RETRIES = 50;
+
+  for (int i = 0; i < MAX_RETRIES; i++) {
+    b.block();
+
+    if (recursively_place(b, 0)) {
+      b.unblock();
+      return true;
+    }
+
+    b.clear();
+  }
+
+  return false;
+}
+
+void MediocrePlayer::record_attack(Point point) {
+  attacks.at(point.r).at(point.c) = true;
+}
+
+Point MediocrePlayer::random_attack() {
+  Point rand_point = game().randomPoint();
+
+  while (was_attacked(rand_point)) {
+    rand_point = game().randomPoint();
+  }
+
+  record_attack(rand_point);
+
+  used_cross_attack = false;
+  return rand_point;
+}
+
+bool MediocrePlayer::was_attacked(Point candidate) {
+  return attacks.at(candidate.r).at(candidate.c);
+}
+
+Point MediocrePlayer::cross_pattern_attack() {
+  std::vector<Point> attack_candidates;
+
+  std::vector<Point> cardinal_offsets{
+      Point{-1, 0}, // North
+      Point{0, 1},  // East
+      Point{1, 0},  // South
+      Point{0, -1}  // West
+  };
+
+  const int CROSS_ARM_LENGTH = 4;
+  for (int i = 1; i <= CROSS_ARM_LENGTH; i++) {
+    for (Point unit_offset : cardinal_offsets) {
+      Point offset = Point{unit_offset.r * i, unit_offset.c * i};
+      Point candidate = add_points(randomly_hit_point, offset);
+
+      if (game().isValid(candidate) && !was_attacked(candidate)) {
+        attack_candidates.push_back(candidate);
+      }
+    }
+  }
+
+  // If the game has ships of length 6 or more, it's possible that every
+  // position no more than 4 steps from (r,c) has been previously chosen. In
+  // that case, switch to state 1 and use its selection algorithm.
+  if (attack_candidates.empty()) {
+    return random_attack();
+  }
+
+  // Return a random, valid point to attack on the cross pattern
+  const Point recommended = attack_candidates.at(
+      static_cast<size_t>(randInt(static_cast<int>(attack_candidates.size()))));
+
+  record_attack(recommended);
+
+  used_cross_attack = true;
+  return recommended;
+}
+
+Point MediocrePlayer::recommendAttack() {
+  if ((!used_cross_attack && !attack_hit) || attack_destroyed) {
+    return random_attack();
+  }
+
+  return cross_pattern_attack();
+}
+
+void MediocrePlayer::recordAttackResult(Point p, bool validShot, bool shotHit,
+                                        bool shipDestroyed, int /* shipId */) {
+  if (!validShot) {
+    throw std::invalid_argument("Invalid shot at (" + std::to_string(p.r) +
+                                "," + std::to_string(p.c) +
+                                "), which `MediocrePlayer` should not allow.");
+  }
+
+  attack_hit = shotHit;
+  attack_destroyed = shipDestroyed;
+
+  if (!used_cross_attack) {
+    randomly_hit_point = p;
+  }
+}
+
+void MediocrePlayer::recordAttackByOpponent(Point /* p */) {}
 
 //*********************************************************************
 //  GoodPlayer
