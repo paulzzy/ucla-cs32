@@ -63,7 +63,25 @@ void game_tests() {
   }
 
   // `Game::play()`
-  // TOOO
+  //
+  Game g_std{MAXROWS, MAXCOLS};
+  addStandardShips(g_std);
+
+  const bool pause = false;
+
+#define TEST_PLAY_AWFUL
+#ifdef TEST_PLAY_AWFUL
+
+  Player *awful_1 = createPlayer("awful", "test_awful_1", g_std);
+  Player *awful_2 = createPlayer("awful", "test_awful_2", g_std);
+
+  g_std.play(awful_1, awful_2, pause);
+
+  std::cerr
+      << "Check the above game between two awful players for correctness.\n"
+      << std::endl;
+
+#endif
 
   std::cerr << "Passed `Game` test cases ✨" << std::endl;
 }
