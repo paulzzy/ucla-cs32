@@ -154,15 +154,18 @@ bool HumanPlayer::placeShips(Board &b) {
 }
 
 Point HumanPlayer::recommendAttack() {
-  std::cout << "Enter the row and column to attack (e.g., 3 5): ";
-
   Point input{-1, -1};
   bool is_integers = false;
   do {
+    std::cout << "Enter the row and column to attack (e.g., 3 5): ";
+
     is_integers = getLineWithTwoIntegers(input.r, input.c);
 
     if (!is_integers) {
       std::cout << "You must enter two integers." << std::endl;
+    } else if (!game().isValid(input)) {
+      std::cout << name() << " wasted a shot at (" << input.r << "," << input.c
+                << ")." << std::endl;
     }
   } while (!is_integers);
 
