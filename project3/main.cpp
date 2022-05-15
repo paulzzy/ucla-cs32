@@ -247,6 +247,25 @@ void mediocre_player_tests() {
 
 #endif
 
+  Game g_std{MAXROWS, MAXCOLS};
+  addStandardShips(g_std);
+
+  const bool pause = true;
+
+#define TEST_PLAY_MEDIOCRE
+#ifdef TEST_PLAY_MEDIOCRE
+
+  Player *mediocre_1 = createPlayer("mediocre", "test_mediocre_1", g_std);
+  Player *mediocre_2 = createPlayer("mediocre", "test_mediocre_2", g_std);
+
+  g_std.play(mediocre_1, mediocre_2, pause);
+
+  std::cerr
+      << "Check the above game between two mediocre players for correctness.\n"
+      << std::endl;
+
+#endif
+
   std::cerr << "Passed mediocre player test cases." << std::endl;
 }
 
