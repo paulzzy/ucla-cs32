@@ -281,16 +281,20 @@ void good_player_tests() {
     Player *good = createPlayer("good", "test_good", g_std);
     Player *mediocre = createPlayer("mediocre", "test_mediocre", g_std);
 
+#define DISABLE_COUT_AND_CERR_OUTPUT
+#ifdef DISABLE_COUT_AND_CERR_OUTPUT
     std::cout.setstate(std::ios_base::failbit);
     std::cerr.setstate(std::ios_base::failbit);
+#endif
+
     if (g_std.play(good, mediocre, pause) == good) {
       good_wins++;
     }
 
     std::cout.clear();
     std::cerr.clear();
-    std::cout << "Completed game " << i << " out of " << TEST_PLAY
-              << " games. 🥶" << std::endl;
+    std::cout << "Completed game " << i << " out of " << TEST_PLAY << " games."
+              << std::endl;
   }
 
   const double MIN_WIN_RATE = 0.8;
