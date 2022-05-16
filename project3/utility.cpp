@@ -17,6 +17,8 @@ Point move_dir(Direction dir, Point start, int offset) {
 
 bool equal(Point a, Point b) { return a.r == b.r && a.c == b.c; }
 
+Point add_points(Point a, Point b) { return Point{a.r + b.r, a.c + b.c}; }
+
 bool valid_ship_id(int ship_id, int num_ships) {
   return ship_id >= 0 && ship_id < num_ships;
 }
