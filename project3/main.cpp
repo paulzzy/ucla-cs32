@@ -222,10 +222,10 @@ void mediocre_player_tests() {
 
   assert(!m->isHuman());
 
-// #define MEDIOCRE_TEST_PLACING_SHIPS
+#define MEDIOCRE_TEST_PLACING_SHIPS
 #ifdef MEDIOCRE_TEST_PLACING_SHIPS
 
-  const int MAX_PLACES = 100;
+  const int MAX_PLACES = 10;
   int fail_count = 0;
 
   for (int i = 0; i < MAX_PLACES; i++) {
@@ -250,9 +250,9 @@ void mediocre_player_tests() {
   Game g_std{MAXROWS, MAXCOLS};
   addStandardShips(g_std);
 
-  const bool pause = true;
+  const bool pause = false;
 
-#define TEST_PLAY_MEDIOCRE
+// #define TEST_PLAY_MEDIOCRE
 #ifdef TEST_PLAY_MEDIOCRE
 
   Player *mediocre_1 = createPlayer("mediocre", "test_mediocre_1", g_std);
@@ -267,6 +267,41 @@ void mediocre_player_tests() {
 #endif
 
   std::cerr << "Passed mediocre player test cases." << std::endl;
+}
+
+void good_player_tests() {
+  Game g_std{MAXROWS, MAXCOLS};
+  addStandardShips(g_std);
+
+  const bool pause = false;
+
+  const int TEST_PLAY = 1000;
+  int good_wins = 0;
+  for (int i = 1; i <= TEST_PLAY; i++) {
+    Player *good = createPlayer("good", "test_good", g_std);
+    Player *mediocre = createPlayer("mediocre", "test_mediocre", g_std);
+
+    std::cout.setstate(std::ios_base::failbit);
+    std::cerr.setstate(std::ios_base::failbit);
+    if (g_std.play(good, mediocre, pause) == good) {
+      good_wins++;
+    }
+
+    std::cout.clear();
+    std::cerr.clear();
+    std::cout << "Completed game " << i << " out of " << TEST_PLAY
+              << " games. 🥶" << std::endl;
+  }
+
+  const double MIN_WIN_RATE = 0.8;
+  const double good_win_rate = good_wins / static_cast<double>(TEST_PLAY);
+
+  std::cout << "Good player won " << good_win_rate * 100
+            << "% of the games, with " << good_wins << " wins out of "
+            << TEST_PLAY << " total." << std::endl;
+  assert(good_win_rate >= MIN_WIN_RATE);
+
+  std::cerr << "Passed good player test cases." << std::endl;
 }
 
 int main() {
@@ -336,5 +371,6 @@ int main() {
   // game_tests();
   // board_tests();
   // human_player_tests();
-  mediocre_player_tests();
+  // mediocre_player_tests();
+  good_player_tests();
 }
