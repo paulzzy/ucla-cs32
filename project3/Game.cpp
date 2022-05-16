@@ -101,7 +101,7 @@ void prompt_to_continue() {
 }
 
 Player *GameImpl::play(Player *p1, Player *p2, Board &b1, Board &b2,
-                       bool shouldPause) {
+                       bool shouldPause = true) {
   if (!p1->placeShips(b1)) {
     return nullptr;
   }
