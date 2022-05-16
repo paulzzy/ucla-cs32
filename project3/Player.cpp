@@ -359,7 +359,292 @@ void MediocrePlayer::recordAttackByOpponent(Point /* p */) {}
 
 // TODO:  You need to replace this with a real class declaration and
 //        implementation.
-typedef AwfulPlayer GoodPlayer;
+class GoodPlayer : public Player {
+public:
+  GoodPlayer(std::string name, const Game &g);
+  virtual bool placeShips(Board &b);
+  virtual Point recommendAttack();
+  virtual void recordAttackResult(Point p, bool validShot, bool shotHit,
+                                  bool shipDestroyed, int shipId);
+  virtual void recordAttackByOpponent(Point p);
+
+private:
+  bool recursively_place(Board &b, int ship_id);
+  Point random_attack();
+  Point find_ship_direction();
+  bool was_attacked(Point candidate);
+  void record_attack(Point point);
+  Point destroy_ship();
+  bool close_to_prev_attacks(Point candidate);
+
+  enum AttackState { RANDOM, FIND_SHIP_DIRECTION, DESTROY_SHIP };
+  AttackState prev_attack{RANDOM}; // Always begin attacking randomly
+
+  int longest_ship_length{0};
+
+  bool attack_hit{false};
+  bool attack_destroyed{false};
+
+  Point initial_hit{-1, -1};
+  Point last_hit{-1, -1};
+  Point repeated_offset{-1, -1};
+  std::vector<std::vector<bool>> attacks;
+};
+
+GoodPlayer::GoodPlayer(std::string name, const Game &g)
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
+    : Player(name, g), attacks{static_cast<size_t>(game().rows()),
+                               std::vector<bool>(game().cols(), false)} {
+  for (int i = 0; i < game().nShips(); i++) {
+    if (game().shipLength(i) > longest_ship_length) {
+      longest_ship_length = game().shipLength(i);
+    }
+  }
+}
+
+// NOLINTNEXTLINE(misc-no-recursion)
+bool GoodPlayer::recursively_place(Board &b, int ship_id) {
+  // All ships placed
+  if (ship_id >= game().nShips()) {
+    return true;
+  }
+
+  for (int i = 0; i < game().rows(); i++) {
+    for (int j = 0; j < game().cols(); j++) {
+      const Point current{i, j};
+      if (b.placeShip(current, ship_id, Direction::HORIZONTAL)) {
+        bool placed_all = recursively_place(b, ship_id + 1);
+
+        if (placed_all) {
+          return true;
+        }
+
+        // Backtrack if impossible to place current ship
+        b.unplaceShip(current, ship_id, Direction::HORIZONTAL);
+      }
+      if (b.placeShip(current, ship_id, Direction::VERTICAL)) {
+        bool placed_all = recursively_place(b, ship_id + 1);
+
+        if (placed_all) {
+          return true;
+        }
+
+        // Backtrack if impossible to place current ship
+        b.unplaceShip(current, ship_id, Direction::VERTICAL);
+      }
+    }
+  }
+
+  // Impossible to place all ships
+  return false;
+}
+
+bool GoodPlayer::placeShips(Board &b) {
+  const int MAX_RETRIES = 50;
+
+  for (int i = 0; i < MAX_RETRIES; i++) {
+    b.block();
+
+    if (recursively_place(b, 0)) {
+      b.unblock();
+      return true;
+    }
+
+    b.clear();
+  }
+
+  return false;
+}
+
+void GoodPlayer::record_attack(Point point) {
+  attacks.at(point.r).at(point.c) = true;
+}
+
+bool GoodPlayer::was_attacked(Point candidate) {
+  if (game().isValid(candidate)) {
+    return attacks.at(candidate.r).at(candidate.c);
+  }
+
+  return false;
+}
+
+bool GoodPlayer::close_to_prev_attacks(Point candidate) {
+  const int square_side = longest_ship_length - 1;
+  const Point top_left_corner =
+      add_points(candidate, Point{-square_side / 2, -square_side / 2});
+
+  for (int i = 0; i < square_side; i++) {
+    for (int j = 0; j < square_side; j++) {
+      const Point current = add_points(top_left_corner, Point{i, j});
+      if (was_attacked(current)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+Point GoodPlayer::random_attack() {
+  Point rand_point = game().randomPoint();
+
+  const int MAX_RETRIES = 10;
+  int retries = 0;
+  while (was_attacked(rand_point) && close_to_prev_attacks(rand_point)) {
+    rand_point = game().randomPoint();
+    retries++;
+
+    if (retries >= MAX_RETRIES && !was_attacked(rand_point)) {
+      break;
+    }
+  }
+
+  prev_attack = RANDOM;
+  std::cerr << "Below attack uses random_attack() 🥵" << std::endl;
+  std::cerr << "\tRecommended point is (" << rand_point.r << "," << rand_point.c
+            << ")" << std::endl;
+  return rand_point;
+}
+
+// Checks the four adjacent points to the hit ship segment, starting from north
+// and rotating clockwise. If a second ship segment is hit, `repeated_offset`
+// will be set to the direction of the two known ship segments. This allows
+// `destroy_ship()` to be called.
+Point GoodPlayer::find_ship_direction() {
+  Point recommended{-1, -1};
+
+  std::vector<Point> cardinal_offsets{
+      Point{-1, 0}, // North
+      Point{0, 1},  // East
+      Point{1, 0},  // South
+      Point{0, -1}  // West
+  };
+
+  for (Point offset : cardinal_offsets) {
+    Point candidate = add_points(initial_hit, offset);
+    std::cerr << "Ship direction candidate is (" << candidate.r << ","
+              << candidate.c << "): " << std::boolalpha
+              << game().isValid(candidate) << ", " << !was_attacked(candidate)
+              << std::endl;
+
+    if (game().isValid(candidate) && !was_attacked(candidate)) {
+      // Found a valid point adjacent to the hit ship segment
+      recommended = candidate;
+      repeated_offset = offset;
+      break;
+    }
+  }
+
+  // None of the four adjacent points are valid
+  if (equal(recommended, Point{-1, -1})) {
+    std::cerr << "find_ship_direction() -> random_attack(), offset of ("
+              << repeated_offset.r << "," << repeated_offset.c << ")"
+              << std::endl;
+    return random_attack();
+  }
+
+  prev_attack = FIND_SHIP_DIRECTION;
+  std::cerr << "Below attack uses find_ship_direction() 😭" << std::endl;
+  std::cerr << "\tUses the offset (" << repeated_offset.r << ", "
+            << repeated_offset.c << ")" << std::endl;
+  return recommended;
+}
+
+Point GoodPlayer::destroy_ship() {
+  Point recommended{-1, -1};
+
+  recommended = add_points(last_hit, repeated_offset);
+
+  // Attack in the other direction if:
+  // 1. One end of the ship has been reached (i.e. an attack fails)
+  // 2. The point is outside the board
+  // 3. The point has already been attacked
+  if (!attack_hit || !game().isValid(recommended) ||
+      was_attacked(recommended)) {
+    repeated_offset = Point{repeated_offset.r * -1, repeated_offset.c * -1};
+    recommended = add_points(initial_hit, repeated_offset);
+
+    // In the rare case that a column of adjacently stacked ships is attacked,
+    // `destroy_ship()` will switch to a different strategy (rather than being
+    // terminated when a ship is destroyed, since that would never occur)
+    if (!game().isValid(recommended) || was_attacked(recommended)) {
+      std::cerr << "destroy_ship() -> random_attack(), offset of ("
+                << repeated_offset.r << "," << repeated_offset.c << ")"
+                << std::endl;
+      return random_attack();
+    }
+  }
+
+  prev_attack = DESTROY_SHIP;
+  std::cerr << "Below attack uses destroy_ship() 🤡\n";
+  std::cerr << "\tUses the repeated offset (" << repeated_offset.r << ", "
+            << repeated_offset.c << ")" << std::endl;
+  return recommended;
+}
+
+Point GoodPlayer::recommendAttack() {
+  std::cerr << "Initial hit is (" << initial_hit.r << "," << initial_hit.c
+            << "), last hit is (" << last_hit.r << "," << last_hit.c << ")"
+            << std::endl;
+  Point recommended{-1, -1};
+
+  switch (prev_attack) {
+  case RANDOM:
+    if (attack_hit && !attack_destroyed) {
+      recommended = find_ship_direction();
+    } else {
+      recommended = random_attack();
+    }
+    break;
+
+  case FIND_SHIP_DIRECTION:
+    if (attack_destroyed) {
+      recommended = random_attack();
+    } else if (attack_hit) {
+      recommended = destroy_ship();
+    } else {
+      recommended = find_ship_direction();
+    }
+    break;
+
+  case DESTROY_SHIP:
+    if (attack_destroyed) {
+      recommended = random_attack();
+    } else {
+      recommended = destroy_ship();
+    }
+    break;
+
+  default:
+    throw std::invalid_argument("Invalid state for previous attack.");
+    break;
+  }
+
+  record_attack(recommended);
+  return recommended;
+}
+
+void GoodPlayer::recordAttackResult(Point p, bool validShot, bool shotHit,
+                                    bool shipDestroyed, int /* shipId */) {
+  if (!validShot) {
+    throw std::invalid_argument("Invalid shot at (" + std::to_string(p.r) +
+                                "," + std::to_string(p.c) +
+                                "), which `GoodPlayer` should not allow.");
+  }
+
+  attack_hit = shotHit;
+  attack_destroyed = shipDestroyed;
+
+  if (attack_hit) {
+    last_hit = p;
+
+    if (!attack_destroyed && prev_attack == RANDOM) {
+      initial_hit = p;
+    }
+  }
+}
+
+void GoodPlayer::recordAttackByOpponent(Point /* p */) {}
 
 //*********************************************************************
 //  createPlayer
