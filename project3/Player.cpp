@@ -370,17 +370,15 @@ public:
 
 private:
   bool recursively_place(Board &b, int ship_id);
-  Point random_attack();
+  Point random_checkboard_attack();
   Point find_ship_direction();
   bool was_attacked(Point candidate);
   void record_attack(Point point);
   Point destroy_ship();
-  bool close_to_prev_attacks(Point candidate);
+  bool in_checkerboard(Point candidate);
 
   enum AttackState { RANDOM, FIND_SHIP_DIRECTION, DESTROY_SHIP };
   AttackState prev_attack{RANDOM}; // Always begin attacking randomly
-
-  int longest_ship_length{0};
 
   bool attack_hit{false};
   bool attack_destroyed{false};
@@ -394,13 +392,7 @@ private:
 GoodPlayer::GoodPlayer(std::string name, const Game &g)
     // NOLINTNEXTLINE(performance-unnecessary-value-param)
     : Player(name, g), attacks{static_cast<size_t>(game().rows()),
-                               std::vector<bool>(game().cols(), false)} {
-  for (int i = 0; i < game().nShips(); i++) {
-    if (game().shipLength(i) > longest_ship_length) {
-      longest_ship_length = game().shipLength(i);
-    }
-  }
-}
+                               std::vector<bool>(game().cols(), false)} {}
 
 // NOLINTNEXTLINE(misc-no-recursion)
 bool GoodPlayer::recursively_place(Board &b, int ship_id) {
@@ -468,42 +460,33 @@ bool GoodPlayer::was_attacked(Point candidate) {
   return false;
 }
 
-bool GoodPlayer::close_to_prev_attacks(Point candidate) {
-  const int square_side = longest_ship_length - 1;
-  const Point top_left_corner =
-      add_points(candidate, Point{-square_side / 2, -square_side / 2});
-
-  for (int i = 0; i < square_side; i++) {
-    for (int j = 0; j < square_side; j++) {
-      const Point current = add_points(top_left_corner, Point{i, j});
-      if (was_attacked(current)) {
-        return true;
-      }
-    }
+bool GoodPlayer::in_checkerboard(Point candidate) {
+  if (game().isValid(candidate)) {
+    return (candidate.r + candidate.c) % 2 == 0;
   }
 
   return false;
 }
 
-Point GoodPlayer::random_attack() {
-  Point rand_point = game().randomPoint();
-
-  const int MAX_RETRIES = 10;
+Point GoodPlayer::random_checkboard_attack() {
+  Point recommended = game().randomPoint();
+  const int MAX_RETRIES = 50;
   int retries = 0;
-  while (was_attacked(rand_point) && close_to_prev_attacks(rand_point)) {
-    rand_point = game().randomPoint();
-    retries++;
 
-    if (retries >= MAX_RETRIES && !was_attacked(rand_point)) {
+  while (!in_checkerboard(recommended) || was_attacked(recommended)) {
+    if (retries > MAX_RETRIES && !was_attacked(recommended)) {
       break;
     }
+
+    recommended = game().randomPoint();
+    retries++;
   }
 
   prev_attack = RANDOM;
-  std::cerr << "Below attack uses random_attack() 🥵" << std::endl;
-  std::cerr << "\tRecommended point is (" << rand_point.r << "," << rand_point.c
-            << ")" << std::endl;
-  return rand_point;
+  std::cerr << "Below attack uses random_checkboard_attack() 🥵" << std::endl;
+  std::cerr << "\tRecommended point is (" << recommended.r << ","
+            << recommended.c << ")" << std::endl;
+  return recommended;
 }
 
 // Checks the four adjacent points to the hit ship segment, starting from north
@@ -537,10 +520,10 @@ Point GoodPlayer::find_ship_direction() {
 
   // None of the four adjacent points are valid
   if (equal(recommended, Point{-1, -1})) {
-    std::cerr << "find_ship_direction() -> random_attack(), offset of ("
-              << repeated_offset.r << "," << repeated_offset.c << ")"
-              << std::endl;
-    return random_attack();
+    std::cerr
+        << "find_ship_direction() -> random_checkboard_attack(), offset of ("
+        << repeated_offset.r << "," << repeated_offset.c << ")" << std::endl;
+    return random_checkboard_attack();
   }
 
   prev_attack = FIND_SHIP_DIRECTION;
@@ -571,7 +554,7 @@ Point GoodPlayer::destroy_ship() {
       std::cerr << "destroy_ship() -> random_attack(), offset of ("
                 << repeated_offset.r << "," << repeated_offset.c << ")"
                 << std::endl;
-      return random_attack();
+      return random_checkboard_attack();
     }
   }
 
@@ -593,13 +576,13 @@ Point GoodPlayer::recommendAttack() {
     if (attack_hit && !attack_destroyed) {
       recommended = find_ship_direction();
     } else {
-      recommended = random_attack();
+      recommended = random_checkboard_attack();
     }
     break;
 
   case FIND_SHIP_DIRECTION:
     if (attack_destroyed) {
-      recommended = random_attack();
+      recommended = random_checkboard_attack();
     } else if (attack_hit) {
       recommended = destroy_ship();
     } else {
@@ -609,7 +592,7 @@ Point GoodPlayer::recommendAttack() {
 
   case DESTROY_SHIP:
     if (attack_destroyed) {
-      recommended = random_attack();
+      recommended = random_checkboard_attack();
     } else {
       recommended = destroy_ship();
     }
