@@ -102,11 +102,7 @@ void prompt_to_continue() {
 
 Player *GameImpl::play(Player *p1, Player *p2, Board &b1, Board &b2,
                        bool shouldPause = true) {
-  if (!p1->placeShips(b1)) {
-    return nullptr;
-  }
-
-  if (!p2->placeShips(b2)) {
+  if (!p1->placeShips(b1) || !p2->placeShips(b2)) {
     return nullptr;
   }
 
@@ -115,14 +111,14 @@ Player *GameImpl::play(Player *p1, Player *p2, Board &b1, Board &b2,
   Board *other_board = &b2;
 
   while (!(b1.allShipsDestroyed() || b2.allShipsDestroyed())) {
-    const bool only_shots = other_player->isHuman();
-
-    AttackData attack{Point{-1, -1}, false, false, false, -1};
-    attack.point = attacking_player->recommendAttack();
+    const bool only_shots = attacking_player->isHuman();
 
     std::cout << attacking_player->name() << "'s turn.  Board for "
               << other_player->name() << ":\n";
     other_board->display(only_shots);
+
+    AttackData attack{Point{-1, -1}, false, false, false, -1};
+    attack.point = attacking_player->recommendAttack();
 
     // If the attacking player is a human, the user is prompted to attack
     attack.valid = other_board->attack(attack.point, attack.hit_ship,
@@ -156,8 +152,16 @@ Player *GameImpl::play(Player *p1, Player *p2, Board &b1, Board &b2,
   }
 
   Player *winner = b1.allShipsDestroyed() ? p2 : p1;
+  Board *winners_board = b1.allShipsDestroyed() ? &b2 : &b1;
+  Player *loser = b1.allShipsDestroyed() ? p1 : p2;
 
   std::cout << winner->name() << " wins!" << std::endl;
+
+  if (loser->isHuman()) {
+    std::cout << "Here is where " << winner->name()
+              << "'s ships were:" << std::endl;
+    winners_board->display(false);
+  }
 
   return winner;
 }

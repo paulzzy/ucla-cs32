@@ -78,12 +78,14 @@ bool getLineWithTwoIntegers(int &r, int &c) {
 }
 
 char get_one_char() {
-  char value;
-  if (!(std::cin >> value)) {
-    std::cin.clear();
+  std::string input_line;
+  std::getline(std::cin, input_line);
+
+  if (input_line.empty()) {
+    return '\0';
   }
-  std::cin.ignore(STREAM_MAX, '\n');
-  return value;
+
+  return input_line.at(0);
 }
 
 class HumanPlayer : public Player {
