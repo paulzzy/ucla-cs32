@@ -194,12 +194,15 @@ void board_tests() {
 void human_player_tests() {
   Game g{MAXROWS, MAXCOLS};
   add_test_ships(g);
-  Player *h = createPlayer("human", "human_test", g);
+  Player *h_1 = createPlayer("human", "human_test_1", g);
 
   Board b{g};
 
-  assert(h->isHuman());
-  assert(h->placeShips(b));
+// #define DIRECTLY_TEST_HUMAN_FUNCTIONS
+#ifdef DIRECTLY_TEST_HUMAN_FUNCTIONS
+
+  assert(h_1->isHuman());
+  assert(h_1->placeShips(b));
 
   std::cerr << "Enter 0 0 when prompted for the attack point." << std::endl;
   const Point p1 = h->recommendAttack();
@@ -210,6 +213,21 @@ void human_player_tests() {
             << " when prompted for the attack point.\n";
   const Point p2 = h->recommendAttack();
   assert(p2.r == MAXROWS && p2.c == MAXCOLS);
+
+#endif
+
+  Game g_std{MAXROWS, MAXCOLS};
+  addStandardShips(g_std);
+
+  Player *h_2_std = createPlayer("human", "human_test_2", g_std);
+  Player *m_std = createPlayer("mediocre", "mediocre_test", g_std);
+  Player *good = createPlayer("good", "Good Gerard", g_std);
+
+  Board b_std{g_std};
+
+  const bool pause = true;
+
+  g_std.play(h_2_std, good, pause);
 }
 
 void mediocre_player_tests() {
@@ -281,7 +299,7 @@ void good_player_tests() {
     Player *good = createPlayer("good", "test_good", g_std);
     Player *mediocre = createPlayer("mediocre", "test_mediocre", g_std);
 
-#define DISABLE_COUT_AND_CERR_OUTPUT
+// #define DISABLE_COUT_AND_CERR_OUTPUT
 #ifdef DISABLE_COUT_AND_CERR_OUTPUT
     std::cout.setstate(std::ios_base::failbit);
     std::cerr.setstate(std::ios_base::failbit);
@@ -374,7 +392,7 @@ int main() {
   // Custom tests
   // game_tests();
   // board_tests();
-  // human_player_tests();
+  human_player_tests();
   // mediocre_player_tests();
-  good_player_tests();
+  // good_player_tests();
 }
