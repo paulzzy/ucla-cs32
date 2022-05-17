@@ -123,8 +123,7 @@ bool BoardImpl::placeShip(Point topOrLeft, int shipId, Direction dir) {
     const Point point = move_dir(dir, topOrLeft, i);
 
     // Validation: Check 2
-    if (!(point.r >= 0 && point.r < MAXROWS) ||
-        !(point.c >= 0 && point.c < MAXCOLS)) {
+    if (!m_game.isValid(point)) {
       return false;
     }
 
