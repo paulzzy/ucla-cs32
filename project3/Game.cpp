@@ -141,7 +141,7 @@ Player *GameImpl::play(Player *p1, Player *p2, Board &b1, Board &b2,
 
     other_board->display(only_shots);
 
-    if (shouldPause) {
+    if (shouldPause && !b1.allShipsDestroyed() && !b2.allShipsDestroyed()) {
       prompt_to_continue();
     }
 
