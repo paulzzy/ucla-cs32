@@ -25,7 +25,18 @@ private:
 // Remove the restaurants in li with 2 or fewer stars and destroy them.
 // It is acceptable if the order of the remaining restaurants is not
 // the same as in the original list.
-void removeBad(list<Restaurant *> &li) {}
+void removeBad(list<Restaurant *> &li) {
+  auto it = li.begin();
+
+  while (it != li.end()) {
+    if ((*it)->stars() <= 2) {
+      delete *it;
+      it = li.erase(it);
+    } else {
+      it++;
+    }
+  }
+}
 
 #ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
 
