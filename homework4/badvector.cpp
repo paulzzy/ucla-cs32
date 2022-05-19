@@ -24,7 +24,18 @@ private:
 // Remove the restaurants in v with 2 or fewer stars and destroy them.
 // It is acceptable if the order of the remaining restaurants is not
 // the same as in the original vector.
-void removeBad(vector<Restaurant *> &v) {}
+void removeBad(vector<Restaurant *> &v) {
+  auto it = v.begin();
+
+  while (it != v.end()) {
+    if ((*it)->stars() <= 2) {
+      delete *it;
+      it = v.erase(it);
+    } else {
+      it++;
+    }
+  }
+}
 
 #ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
 
