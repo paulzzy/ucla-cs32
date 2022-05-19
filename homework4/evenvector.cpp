@@ -1,13 +1,20 @@
+#define DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+#ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <vector>
 using namespace std;
 
+#endif // DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+
 // Remove the even integers from v.
 // It is acceptable if the order of the remaining even integers is not
 // the same as in the original vector.
 void removeEven(vector<int> &v) {}
+
+#ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
 
 void test() {
   int a[8] = {1, 7, 6, 5, 8, 4, 3, 2};
@@ -26,3 +33,5 @@ int main() {
   test();
   cout << "Passed" << endl;
 }
+
+#endif // DO_NOT_SUBMIT_FOR_HOMEWORK_SIX

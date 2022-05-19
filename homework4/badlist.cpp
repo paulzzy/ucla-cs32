@@ -1,3 +1,6 @@
+#define DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+#ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -17,10 +20,14 @@ private:
   int m_stars;
 };
 
+#endif // DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+
 // Remove the restaurants in li with 2 or fewer stars and destroy them.
 // It is acceptable if the order of the remaining restaurants is not
 // the same as in the original list.
 void removeBad(list<Restaurant *> &li) {}
+
+#ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
 
 void test() {
   int a[8] = {4, 3, 2, 4, 1, 1, 5, 2};
@@ -73,3 +80,5 @@ int main() {
   test();
   cout << "Passed" << endl;
 }
+
+#endif // DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
