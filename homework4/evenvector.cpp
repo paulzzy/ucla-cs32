@@ -12,7 +12,17 @@ using namespace std;
 // Remove the even integers from v.
 // It is acceptable if the order of the remaining even integers is not
 // the same as in the original vector.
-void removeEven(vector<int> &v) {}
+void removeEven(vector<int> &v) {
+  auto it = v.begin();
+
+  while (it != v.end()) {
+    if (*it % 2 == 0) {
+      it = v.erase(it);
+    } else {
+      it++;
+    }
+  }
+}
 
 #ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
 
