@@ -12,7 +12,7 @@ void test() {
   assert(si.insert(10) == 0);
   assert(si.find(20) == 1);
   assert(si.remove(10) == 1);
-  int i;
+  int i{0};
   assert(si.get(0, i));
   assert(si.set(0, 30));
   assert(si.erase(0));
