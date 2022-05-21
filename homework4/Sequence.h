@@ -3,8 +3,6 @@
 #ifndef SEQUENCE_INCLUDED
 #define SEQUENCE_INCLUDED
 
-using T = unsigned long;
-
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions)
 template <typename T> class Sequence {
 public:
