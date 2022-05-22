@@ -1,3 +1,6 @@
+#define DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+#ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -22,10 +25,24 @@ Domain::~Domain() {
     delete m_subdomains[k];
 }
 
-void listAll(const Domain *d, string path) // two-parameter overload
+#endif // DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
+
+// NOLINTNEXTLINE(misc-no-recursion)
+void listAll(const Domain *d, const std::string &path) // two-parameter overload
 {
-  You will write this code.
+  if (d->subdomains().empty()) {
+    std::cout << path << "\n";
+    return;
+  }
+
+  for (Domain *subdomain : d->subdomains()) {
+    std::string updated_path{subdomain->label() + (path.empty() ? "" : ".") +
+                             path};
+    listAll(subdomain, updated_path);
+  }
 }
+
+#ifdef DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
 
 void listAll(const Domain *d) // one-parameter overload
 {
@@ -59,3 +76,5 @@ int main() {
   listAll(d5);
   delete root;
 }
+
+#endif // DO_NOT_SUBMIT_FOR_HOMEWORK_SIX
