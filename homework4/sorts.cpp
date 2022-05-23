@@ -103,7 +103,7 @@ inline bool compareSensorPtr(const Sensor * /*lhs*/, const Sensor * /*rhs*/) {
 
 void insertion_sort(vector<Sensor> &s,
                     bool comp(const Sensor &, const Sensor &)) {
-  // TODO: Using the insertion sort algorithm (pp. 332-333 in the
+  // DONE: Using the insertion sort algorithm (pp. 332-333 in the
   //       Carrano book; also <a href="bookcode.html">here</a>), sort s
   //       according to the ordering relationship passed in as the
   //       parameter comp.
@@ -119,8 +119,16 @@ void insertion_sort(vector<Sensor> &s,
 
   // Note that if comp(x,y) is true, it means x must end up before y in the
   // final ordering.
-  if (s.size() == 2 && comp(s[1], s[0])) {
-    swap(s[0], s[1]);
+  for (size_t unsorted{1}; unsorted < s.size(); unsorted++) {
+    const Sensor current{s.at(unsorted)};
+    size_t insert_location{unsorted};
+
+    while (insert_location > 0 && comp(current, s.at(insert_location - 1))) {
+      s.at(insert_location) = s.at(insert_location - 1);
+      insert_location--;
+    }
+
+    s.at(insert_location) = current;
   }
 }
 
