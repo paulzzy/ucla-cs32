@@ -30,7 +30,7 @@ void removeBad(list<Restaurant *> &li) {
 
   while (it != li.end()) {
     if ((*it)->stars() <= 2) {
-      delete *it;
+      delete *it; // NOLINT(cppcoreguidelines-owning-memory)
       it = li.erase(it);
     } else {
       it++;

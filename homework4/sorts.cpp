@@ -46,8 +46,13 @@ private:
 
 // These are used for random number generation
 
-std::random_device aRandomDevice;
-std::default_random_engine generator(aRandomDevice());
+std::random_device
+    aRandomDevice; // NOLINT(cert-err58-cpp,
+                   // cppcoreguidelines-avoid-non-const-global-variables)
+std::default_random_engine
+    generator( // NOLINT (cert-err58-cpp,
+               // cppcoreguidelines-avoid-non-const-global-variables)
+        aRandomDevice());
 
 // Here's a class that is not cheap to copy because the objects contain a
 // large array.
@@ -59,19 +64,29 @@ std::default_random_engine generator(aRandomDevice());
 using IdType = int;
 
 struct Sensor {
-  IdType id;
-  double avg;
+  IdType id;  // NOLINT(misc-non-private-member-variables-in-classes)
+  double avg; // NOLINT(misc-non-private-member-variables-in-classes)
   static const int NREADINGS = 200;
-  double readings[NREADINGS];
+  double readings[NREADINGS]{}; // NOLINT(cpp-coreguidelines-avoid-c-arrays,
+                                // misc-non-private-member-variables-in-classes)
   Sensor(IdType i) : id(i) {
-    std::uniform_int_distribution<> distro(0, 99);
+    const int UPPER_BOUND = 99;
+    std::uniform_int_distribution<> distro(0, UPPER_BOUND);
 
     // create random sensor readings (from 0 to 99)
     for (size_t k = 0; k < NREADINGS; k++) {
-      readings[k] = distro(generator);
+      readings[k] // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
+          = distro(generator);
     }
     // (accumulate computes 0.0 + readings[0] + readings[1] + ...)
-    avg = accumulate(readings, readings + NREADINGS, 0.0) / NREADINGS;
+    avg =
+        accumulate(
+            readings, // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+            readings // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+                +    // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+                NREADINGS,
+            0.0) /
+        NREADINGS;
   }
 };
 
@@ -136,7 +151,8 @@ void insertion_sort(vector<Sensor> &s,
 
 void report(const string &caption, double t, const vector<Sensor> &s) {
   if (t >= 1) {
-    t = round(100 * t) / 100;
+    const int TWO_DECIMAL_PLACES = 100;
+    t = round(TWO_DECIMAL_PLACES * t) / TWO_DECIMAL_PLACES;
   }
   cout << t << " milliseconds; " << caption << "; first few sensors are\n\t";
   size_t n = s.size();
@@ -175,7 +191,7 @@ void sortUsingPtrs(vector<Sensor> &sensors,
                    bool comp(const Sensor *, const Sensor *));
 
 int main() {
-  size_t nsensors;
+  size_t nsensors{0};
   cout << "Enter number of sensors to sort: ";
   cin >> nsensors;
   if (!cin || nsensors <= 0) {

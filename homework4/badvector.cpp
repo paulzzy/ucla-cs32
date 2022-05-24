@@ -29,7 +29,7 @@ void removeBad(vector<Restaurant *> &v) {
 
   while (it != v.end()) {
     if ((*it)->stars() <= 2) {
-      delete *it;
+      delete *it; // NOLINT(cppcoreguidelines-owning-memory)
       it = v.erase(it);
     } else {
       it++;
