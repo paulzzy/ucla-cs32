@@ -16,7 +16,7 @@ using namespace std;
 //  you're sorting so many items that insertion_sort would take more time
 //  than you're willing to wait.
 
-const bool TEST_INSERTION_SORT = true;
+const bool TEST_INSERTION_SORT = false;
 
 //========================================================================
 
@@ -91,14 +91,14 @@ inline bool compareSensor(const Sensor &lhs, const Sensor &rhs) {
   return lhs.id < rhs.id;
 }
 
-inline bool compareSensorPtr(const Sensor * /*lhs*/, const Sensor * /*rhs*/) {
-  // TODO: You implement this.  Using the same criteria as compareSensor,
+inline bool compareSensorPtr(const Sensor *lhs, const Sensor *rhs) {
+  // DONE: You implement this.  Using the same criteria as compareSensor,
   //       compare two Sensors POINTED TO by lhs and rhs.  Think about
   //       how you can do it in one line by calling compareSensor.
 
   // Just so this will compile for now, we'll pretend every comparison
   // results in a tie, so there's no preferred ordering.
-  return false; // Delete this line and write your code instead
+  return compareSensor(*lhs, *rhs);
 }
 
 void insertion_sort(vector<Sensor> &s,
@@ -272,7 +272,7 @@ int main() {
 }
 
 void sortUsingPtrs(vector<Sensor> &sensors,
-                   bool /*comp*/ (const Sensor *, const Sensor *)) {
+                   bool comp(const Sensor *, const Sensor *)) {
   // Since Sensors are expensive to copy, and since the STL's sort copies
   // Sensors O(N log N) times, let's sort POINTERS to the Sensors, then
   // make one final pass to rearrange the Sensors according to the
@@ -281,15 +281,25 @@ void sortUsingPtrs(vector<Sensor> &sensors,
   // Create an auxiliary copy of sensors to faciliate the later reordering.
   vector<Sensor> auxSensors(sensors.begin(), sensors.end());
 
-  // TODO:  Create a vector of Sensor pointers, and set each pointer
+  // DONE:  Create a vector of Sensor pointers, and set each pointer
   //        to point to the corresponding Sensor in auxSensors.
+  vector<Sensor *> sensor_ptrs;
+  sensor_ptrs.reserve(auxSensors.size());
 
-  // TODO:  Sort the vector of pointers using the STL sort algorithm
+  for (Sensor &sensor : auxSensors) {
+    sensor_ptrs.push_back(&sensor);
+  }
+
+  // DONE:  Sort the vector of pointers using the STL sort algorithm
   //        with comp as the ordering relationship.
+  std::sort(sensor_ptrs.begin(), sensor_ptrs.end(), comp);
 
-  // TODO:  Using the now-sorted vector of pointers, replace each Sensor
+  // DONE:  Using the now-sorted vector of pointers, replace each Sensor
   //        in sensors with the Sensors from auxSensors in the correct
   //        order.
+  for (size_t i = 0; i < sensors.size(); i++) {
+    sensors.at(i) = *sensor_ptrs.at(i);
+  }
 
   // auxSensors will be destroyed upon return from the function
 }
