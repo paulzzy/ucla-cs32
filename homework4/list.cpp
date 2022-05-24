@@ -30,7 +30,7 @@ Domain::~Domain() {
 // NOLINTNEXTLINE(misc-no-recursion)
 void listAll(const Domain *d, const std::string &path) // two-parameter overload
 {
-  if (d->subdomains().empty()) {
+  if (d == nullptr || d->subdomains().empty()) {
     std::cout << path << "\n";
     return;
   }
