@@ -1,5 +1,6 @@
 #include "NameTable.h"
 #include <cstdint>
+#include <functional>
 #include <list>
 #include <string>
 #include <vector>
@@ -19,7 +20,8 @@ public:
   NameTableImpl &operator=(NameTableImpl &&) = delete;
 
 private:
-  static size_t hash(const std::string &input);
+  struct IdentifierData;
+  static size_t calculate_hash(const std::string &identifier, int scope);
 
   struct IdentifierData {
     std::string identifier;
@@ -58,9 +60,7 @@ bool NameTableImpl::declare(const std::string &id, int line_num) {
   }
 
   IdentifierData id_data{id, line_num, m_current_scope};
-
-  std::string key{id + " " + std::to_string(m_current_scope)};
-  size_t hash_value{hash(key)};
+  size_t hash_value = calculate_hash(id, m_current_scope);
 
   m_hash_table.at(hash_value).push_back(id_data);
 
@@ -72,8 +72,8 @@ int NameTableImpl::find(const std::string &id) const {
     return -1;
   }
 
-  std::string key{id + " " + std::to_string(m_current_scope)};
-  size_t hash_value{hash(key)};
+  for (int scope{m_current_scope}; scope >= 0; scope--) {
+    size_t hash_value{calculate_hash(id, scope)};
 
   for (const IdentifierData &id_data : m_hash_table.at(hash_value)) {
     if (id_data.identifier == id && id_data.scope == m_current_scope) {
@@ -84,19 +84,10 @@ int NameTableImpl::find(const std::string &id) const {
   return -1; // Identifier has no active declaration
 }
 
-// Implements the Fowler–Noll–Vo-1a hash function, produces 32-bit outputs
-size_t NameTableImpl::hash(const std::string &input) {
-  const u_int32_t FNV_OFFSET_BASIS = 2166136261;
-  const u_int32_t FNV_PRIME = 16777619;
+size_t NameTableImpl::calculate_hash(const std::string &identifier, int scope) {
+  std::string key{identifier + " " + std::to_string(scope)};
 
-  u_int32_t hash_value{FNV_OFFSET_BASIS};
-
-  for (unsigned char char_byte : input) {
-    hash_value ^= char_byte;
-    hash_value *= FNV_PRIME;
-  }
-
-  return hash_value % HASH_TABLE_SIZE;
+  return std::hash<std::string>{}(key) % HASH_TABLE_SIZE;
 }
 
 //*********** NameTable functions **************
