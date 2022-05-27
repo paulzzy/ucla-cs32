@@ -45,6 +45,20 @@ NameTableImpl::NameTableImpl()
 
 NameTableImpl::~NameTableImpl() {}
 
+void NameTableImpl::enterScope() { m_current_scope++; }
+
+bool NameTableImpl::exitScope() {
+  if (m_current_scope == 0) {
+    return false;
+  }
+
+  // No need to remove identifiers that go out of scope, since hashing is
+  // performed with both the identifier and scope.
+
+  m_current_scope--;
+  return true;
+}
+
 // Implements the Fowler–Noll–Vo-1a hash function, produces 32-bit outputs
 size_t NameTableImpl::hash(const std::string &input) {
   const u_int32_t FNV_OFFSET_BASIS = 2166136261;
