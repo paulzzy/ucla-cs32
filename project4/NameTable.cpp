@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <functional>
 #include <list>
+#include <stack>
 #include <string>
 #include <vector>
 
@@ -22,35 +23,58 @@ public:
 private:
   struct IdentifierData;
   static size_t calculate_hash(const std::string &identifier, int scope);
+  static bool same_ids(const IdentifierData &id_1, const IdentifierData &id_2);
 
   struct IdentifierData {
     std::string identifier;
     int line;
     int scope;
   };
-  int m_current_scope;
+
+  int m_scope;
+  std::stack<IdentifierData> m_in_scope;
   std::vector<std::vector<IdentifierData>> m_hash_table;
 };
 
 const int HASH_TABLE_SIZE = 20000;
 
 NameTableImpl::NameTableImpl()
-    : m_current_scope{0}, m_hash_table{HASH_TABLE_SIZE,
-                                       std::vector<IdentifierData>{}} {}
+    : m_scope{0}, m_hash_table{HASH_TABLE_SIZE, std::vector<IdentifierData>{}} {
+}
 
 NameTableImpl::~NameTableImpl() {}
 
-void NameTableImpl::enterScope() { m_current_scope++; }
+void NameTableImpl::enterScope() { m_scope++; }
 
 bool NameTableImpl::exitScope() {
-  if (m_current_scope == 0) {
+  if (m_scope == 0) {
     return false;
   }
 
-  // No need to remove identifiers that go out of scope, since hashing is
-  // performed with both the identifier and scope.
+  // Erase identifiers that go out of scope
+  while (!m_in_scope.empty()) {
+    auto current_id = m_in_scope.top();
 
-  m_current_scope--;
+    // Only erase identifiers in the current scope
+    if (current_id.scope != m_scope) {
+      break;
+    }
+
+    size_t hash_value{calculate_hash(current_id.identifier, current_id.scope)};
+
+    // Erase the out-of-scope identifier in the hash table
+    auto &hash_bucket{m_hash_table.at(hash_value)};
+    for (auto it_2 = hash_bucket.begin(); it_2 != hash_bucket.end(); it_2++) {
+      if (same_ids(current_id, *it_2)) {
+        hash_bucket.erase(it_2);
+        break;
+      }
+    }
+
+    m_in_scope.pop();
+  }
+
+  m_scope--;
   return true;
 }
 
@@ -59,15 +83,18 @@ bool NameTableImpl::declare(const std::string &id, int line_num) {
     return false;
   }
 
-  IdentifierData id_data{id, line_num, m_current_scope};
-  size_t hash_value = calculate_hash(id, m_current_scope);
+  IdentifierData id_data{id, line_num, m_scope};
+  size_t hash_value = calculate_hash(id, m_scope);
 
-  for (const IdentifierData &identifier : m_hash_table.at(hash_value)) {
-    if (identifier.identifier == id && identifier.scope == m_current_scope) {
+  // Check for already existing declarations in the same scope
+  auto hash_bucket = m_hash_table.at(hash_value);
+  for (const auto &identifier : hash_bucket) {
+    if (identifier.identifier == id && identifier.scope == m_scope) {
       return false;
     }
   }
 
+  m_in_scope.push(id_data);
   m_hash_table.at(hash_value).push_back(id_data);
 
   return true;
@@ -78,11 +105,14 @@ int NameTableImpl::find(const std::string &id) const {
     return -1;
   }
 
-  for (int scope{m_current_scope}; scope >= 0; scope--) {
+  IdentifierData candidate{id, 0, m_scope};
+
+  // Iterates over all scopes
+  for (int scope{m_scope}; scope >= 0; scope--) {
     size_t hash_value{calculate_hash(id, scope)};
 
-    for (const IdentifierData &id_data : m_hash_table.at(hash_value)) {
-      if (id_data.identifier == id && id_data.scope <= m_current_scope) {
+    for (const auto &id_data : m_hash_table.at(hash_value)) {
+      if (same_ids(id_data, candidate)) {
         return id_data.line;
       }
     }
@@ -95,6 +125,11 @@ size_t NameTableImpl::calculate_hash(const std::string &identifier, int scope) {
   std::string key{identifier + " " + std::to_string(scope)};
 
   return std::hash<std::string>{}(key) % HASH_TABLE_SIZE;
+}
+
+bool NameTableImpl::same_ids(const IdentifierData &id_1,
+                             const IdentifierData &id_2) {
+  return id_1.identifier == id_2.identifier && id_1.scope <= id_2.scope;
 }
 
 //*********** NameTable functions **************
