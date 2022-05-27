@@ -32,7 +32,8 @@ private:
   };
 
   int m_scope;
-  std::stack<IdentifierData> m_in_scope;
+  std::stack<IdentifierData>
+      m_active_ids; // Identifiers that have not gone out of scope
   std::vector<std::vector<IdentifierData>> m_hash_table;
 };
 
@@ -52,8 +53,8 @@ bool NameTableImpl::exitScope() {
   }
 
   // Erase identifiers that go out of scope
-  while (!m_in_scope.empty()) {
-    auto current_id = m_in_scope.top();
+  while (!m_active_ids.empty()) {
+    auto current_id = m_active_ids.top();
 
     // Only erase identifiers in the current scope
     if (current_id.scope != m_scope) {
@@ -62,7 +63,7 @@ bool NameTableImpl::exitScope() {
 
     size_t hash_value{calculate_hash(current_id.identifier)};
 
-    // Erase the out-of-scope identifier in the hash table
+    // Erase the out-of-scope identifier in a hash bucket
     auto &hash_bucket{m_hash_table.at(hash_value)};
     for (auto it_2 = hash_bucket.begin(); it_2 != hash_bucket.end(); it_2++) {
       if (same_ids(current_id, *it_2)) {
@@ -71,7 +72,7 @@ bool NameTableImpl::exitScope() {
       }
     }
 
-    m_in_scope.pop();
+    m_active_ids.pop();
   }
 
   m_scope--;
@@ -94,7 +95,7 @@ bool NameTableImpl::declare(const std::string &id, int line_num) {
     }
   }
 
-  m_in_scope.push(id_data);
+  m_active_ids.push(id_data);
   m_hash_table.at(hash_value).push_back(id_data);
 
   return true;
@@ -107,7 +108,6 @@ int NameTableImpl::find(const std::string &id) const {
 
   IdentifierData candidate{id, 0, m_scope};
 
-  // Iterates over all scopes
   int closest_scope{-1};
   int line{-1};
   size_t hash_value{calculate_hash(id)};
