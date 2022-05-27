@@ -10,7 +10,7 @@ public:
   ~NameTableImpl();
   void enterScope();
   bool exitScope();
-  bool declare(const std::string &id, int lineNum);
+  bool declare(const std::string &id, int line_num);
   int find(const std::string &id) const;
   // Prevent a NameTable object from being copied, assigned, or moved
   NameTableImpl(const NameTableImpl &) = delete;
@@ -50,6 +50,21 @@ bool NameTableImpl::exitScope() {
   // performed with both the identifier and scope.
 
   m_current_scope--;
+  return true;
+}
+
+bool NameTableImpl::declare(const std::string &id, int line_num) {
+  if (id.empty()) {
+    return false;
+  }
+
+  IdentifierData id_data{id, line_num, m_current_scope};
+
+  std::string key{id + " " + std::to_string(m_current_scope)};
+  size_t hash_value{hash(key)};
+
+  m_hash_table.at(hash_value).push_back(id_data);
+
   return true;
 }
 
