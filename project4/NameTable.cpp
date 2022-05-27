@@ -34,13 +34,7 @@ const int HASH_TABLE_SIZE = 20000;
 const int INITIAL_BUCKET_SIZE = 1;
 
 NameTableImpl::NameTableImpl()
-    : m_hash_table{HASH_TABLE_SIZE,
-                   std::vector<IdentifierData>{INITIAL_BUCKET_SIZE,
-                                               {
-                                                   "", // identifier
-                                                   0,  // line
-                                                   0   // scope
-                                               }}},
+    : m_hash_table{HASH_TABLE_SIZE, std::vector<IdentifierData>{}},
       m_current_scope{0} {}
 
 NameTableImpl::~NameTableImpl() {}
