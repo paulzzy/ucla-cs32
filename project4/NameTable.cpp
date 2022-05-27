@@ -22,7 +22,7 @@ public:
 
 private:
   struct IdentifierData;
-  static size_t calculate_hash(const std::string &identifier, int scope);
+  static size_t calculate_hash(const std::string &identifier);
   static bool same_ids(const IdentifierData &id_1, const IdentifierData &id_2);
 
   struct IdentifierData {
@@ -60,7 +60,7 @@ bool NameTableImpl::exitScope() {
       break;
     }
 
-    size_t hash_value{calculate_hash(current_id.identifier, current_id.scope)};
+    size_t hash_value{calculate_hash(current_id.identifier)};
 
     // Erase the out-of-scope identifier in the hash table
     auto &hash_bucket{m_hash_table.at(hash_value)};
@@ -84,7 +84,7 @@ bool NameTableImpl::declare(const std::string &id, int line_num) {
   }
 
   IdentifierData id_data{id, line_num, m_scope};
-  size_t hash_value = calculate_hash(id, m_scope);
+  size_t hash_value = calculate_hash(id);
 
   // Check for already existing declarations in the same scope
   auto hash_bucket = m_hash_table.at(hash_value);
@@ -108,23 +108,22 @@ int NameTableImpl::find(const std::string &id) const {
   IdentifierData candidate{id, 0, m_scope};
 
   // Iterates over all scopes
-  for (int scope{m_scope}; scope >= 0; scope--) {
-    size_t hash_value{calculate_hash(id, scope)};
+  int closest_scope{-1};
+  int line{-1};
+  size_t hash_value{calculate_hash(id)};
 
-    for (const auto &id_data : m_hash_table.at(hash_value)) {
-      if (same_ids(id_data, candidate)) {
-        return id_data.line;
-      }
+  for (const auto &id_data : m_hash_table.at(hash_value)) {
+    if (same_ids(id_data, candidate) && id_data.scope > closest_scope) {
+      closest_scope = id_data.scope;
+      line = id_data.line;
     }
   }
 
-  return -1; // Identifier has no active declaration
+  return line;
 }
 
-size_t NameTableImpl::calculate_hash(const std::string &identifier, int scope) {
-  std::string key{identifier + " " + std::to_string(scope)};
-
-  return std::hash<std::string>{}(key) % HASH_TABLE_SIZE;
+size_t NameTableImpl::calculate_hash(const std::string &identifier) {
+  return std::hash<std::string>{}(identifier) % HASH_TABLE_SIZE;
 }
 
 bool NameTableImpl::same_ids(const IdentifierData &id_1,
