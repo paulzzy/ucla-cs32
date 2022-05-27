@@ -62,6 +62,12 @@ bool NameTableImpl::declare(const std::string &id, int line_num) {
   IdentifierData id_data{id, line_num, m_current_scope};
   size_t hash_value = calculate_hash(id, m_current_scope);
 
+  for (const IdentifierData &identifier : m_hash_table.at(hash_value)) {
+    if (identifier.identifier == id && identifier.scope == m_current_scope) {
+      return false;
+    }
+  }
+
   m_hash_table.at(hash_value).push_back(id_data);
 
   return true;
