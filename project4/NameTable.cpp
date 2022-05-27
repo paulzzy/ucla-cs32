@@ -33,8 +33,8 @@ private:
 const int HASH_TABLE_SIZE = 20000;
 
 NameTableImpl::NameTableImpl()
-    : m_hash_table{HASH_TABLE_SIZE, std::vector<IdentifierData>{}},
-      m_current_scope{0} {}
+    : m_current_scope{0}, m_hash_table{HASH_TABLE_SIZE,
+                                       std::vector<IdentifierData>{}} {}
 
 NameTableImpl::~NameTableImpl() {}
 
