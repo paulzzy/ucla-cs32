@@ -1,4 +1,5 @@
 #include "NameTable.h"
+#include <cstdint>
 #include <list>
 #include <string>
 #include <vector>
@@ -18,8 +19,33 @@ public:
   NameTableImpl &operator=(NameTableImpl &&) = delete;
 
 private:
+  static size_t hash(const std::string &input);
+
   std::vector<std::vector<int>> m_hash_table;
 };
+
+const int HASH_TABLE_SIZE = 20000;
+const int INITIAL_BUCKET_SIZE = 1;
+
+NameTableImpl::NameTableImpl()
+    : m_hash_table{HASH_TABLE_SIZE, std::vector<int>{INITIAL_BUCKET_SIZE}} {}
+
+NameTableImpl::~NameTableImpl() {}
+
+// Implements the Fowler–Noll–Vo-1a hash function, produces 32-bit outputs
+size_t NameTableImpl::hash(const std::string &input) {
+  const u_int32_t FNV_OFFSET_BASIS = 2166136261;
+  const u_int32_t FNV_PRIME = 16777619;
+
+  u_int32_t hash_value{FNV_OFFSET_BASIS};
+
+  for (unsigned char char_byte : input) {
+    hash_value ^= char_byte;
+    hash_value *= FNV_PRIME;
+  }
+
+  return hash_value % HASH_TABLE_SIZE;
+}
 
 //*********** NameTable functions **************
 
