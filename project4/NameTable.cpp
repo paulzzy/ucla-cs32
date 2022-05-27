@@ -31,7 +31,6 @@ private:
 };
 
 const int HASH_TABLE_SIZE = 20000;
-const int INITIAL_BUCKET_SIZE = 1;
 
 NameTableImpl::NameTableImpl()
     : m_hash_table{HASH_TABLE_SIZE, std::vector<IdentifierData>{}},
