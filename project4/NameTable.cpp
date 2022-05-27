@@ -68,6 +68,23 @@ bool NameTableImpl::declare(const std::string &id, int line_num) {
   return true;
 }
 
+int NameTableImpl::find(const std::string &id) const {
+  if (id.empty()) {
+    return -1;
+  }
+
+  std::string key{id + " " + std::to_string(m_current_scope)};
+  size_t hash_value{hash(key)};
+
+  for (const IdentifierData &id_data : m_hash_table.at(hash_value)) {
+    if (id_data.identifier == id && id_data.scope == m_current_scope) {
+      return id_data.line;
+    }
+  }
+
+  return -1; // Identifier has no active declaration
+}
+
 // Implements the Fowler–Noll–Vo-1a hash function, produces 32-bit outputs
 size_t NameTableImpl::hash(const std::string &input) {
   const u_int32_t FNV_OFFSET_BASIS = 2166136261;
