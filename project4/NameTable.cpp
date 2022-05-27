@@ -75,9 +75,10 @@ int NameTableImpl::find(const std::string &id) const {
   for (int scope{m_current_scope}; scope >= 0; scope--) {
     size_t hash_value{calculate_hash(id, scope)};
 
-  for (const IdentifierData &id_data : m_hash_table.at(hash_value)) {
-    if (id_data.identifier == id && id_data.scope == m_current_scope) {
-      return id_data.line;
+    for (const IdentifierData &id_data : m_hash_table.at(hash_value)) {
+      if (id_data.identifier == id && id_data.scope <= m_current_scope) {
+        return id_data.line;
+      }
     }
   }
 
